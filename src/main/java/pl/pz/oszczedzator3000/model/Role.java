@@ -1,5 +1,6 @@
 package pl.pz.oszczedzator3000.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,8 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "authorities")
+    @JsonBackReference
+    @ManyToMany(targetEntity = User.class, mappedBy = "authorities", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<User> users;
 
     public Role(RoleEnum name) {

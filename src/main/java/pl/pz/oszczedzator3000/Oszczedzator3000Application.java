@@ -1,13 +1,17 @@
 package pl.pz.oszczedzator3000;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class Oszczedzator3000Application {
-
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
     public static void main(String[] args) {
         SpringApplication.run(Oszczedzator3000Application.class, args);
     }
-
 }
