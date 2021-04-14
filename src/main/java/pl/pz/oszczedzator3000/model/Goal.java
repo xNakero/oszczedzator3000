@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.pz.oszczedzator3000.model.Enum.CategoryEnum;
+import pl.pz.oszczedzator3000.model.enums.Category;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,12 +19,12 @@ public class Goal {
 
     @Id
     @Column(name = "goal_id", nullable = false, updatable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long goalId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
-    private CategoryEnum categoryEnum;
+    private Category category;
 
     @Column(nullable = false)
     private String goalName;
@@ -35,7 +35,7 @@ public class Goal {
     @Column(nullable = false)
     private LocalDateTime targetDate;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

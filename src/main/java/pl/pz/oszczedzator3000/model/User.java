@@ -21,7 +21,7 @@ public class User {
 
     @Id
     @Column(name = "user_id", nullable = false, updatable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     @Column(nullable = false, unique = true, length = 20)
@@ -39,10 +39,12 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> authorities;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",
+                cascade = CascadeType.ALL)
     private Set<Goal> goals;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL)
     private Set<Expense> expenses;
 
     @Column(nullable = false, updatable = false)
