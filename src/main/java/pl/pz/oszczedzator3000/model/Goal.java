@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.pz.oszczedzator3000.model.Enum.CategoryEnum;
+import pl.pz.oszczedzator3000.model.enums.Category;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class Goal {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
-    private CategoryEnum categoryEnum;
+    private Category category;
 
     @Column(nullable = false)
     private String goalName;

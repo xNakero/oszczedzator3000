@@ -1,6 +1,6 @@
-package pl.pz.oszczedzator3000.model.Enum;
+package pl.pz.oszczedzator3000.model.enums;
 
-public enum CategoryEnum {
+public enum Category {
     FAMILY,
     WHORES,
     FOOD,

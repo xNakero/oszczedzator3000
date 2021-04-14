@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pl.pz.oszczedzator3000.model.Enum.CategoryEnum;
+import pl.pz.oszczedzator3000.model.enums.Category;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -24,16 +24,16 @@ public class Expense {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
-    private CategoryEnum categoryEnum;
+    private Category category;
 
     @Column(nullable = false)
-    private String expenseName;
+    private String name;
 
     @Column(nullable = false)
     private double value;
 
     @Column(nullable = false)
-    private LocalDate expenseDate;
+    private LocalDate date;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
