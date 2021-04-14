@@ -13,15 +13,7 @@ import java.util.stream.Stream;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
-    //streams for analysis
-    Stream<Expense> findAllByUser(User user);
-
-    Stream<Expense> findAllByCategoryAndUser(Category category, User user);
-
-    //page for return to front
-    Page<Expense> findByName(String expenseName, Pageable pageable);
+    Stream<Expense> streamAllByUser(User user);
 
     Page<Expense> findAllByUser(User user, Pageable pageable);
-
-    Page<Expense> findAllByCategoryAndUser(Category category, User user, Pageable pageable);
 }

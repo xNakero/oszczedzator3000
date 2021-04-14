@@ -13,7 +13,8 @@ import java.time.LocalDate;
 public class ExpenseFilterRequestDto {
 
     private Category category;
-    private double value;
+    private double minValue;
+    private double maxValue;
     private LocalDate startDate;
     private LocalDate endDate;
 }

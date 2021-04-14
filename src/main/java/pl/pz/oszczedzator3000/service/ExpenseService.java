@@ -1,10 +1,13 @@
 package pl.pz.oszczedzator3000.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import pl.pz.oszczedzator3000.dto.ExpenseFilterRequestDto;
 import pl.pz.oszczedzator3000.dto.ExpenseRequestDto;
 import pl.pz.oszczedzator3000.dto.ExpenseResponseDto;
 import pl.pz.oszczedzator3000.exceptions.ExpenseNotFoundException;
@@ -16,9 +19,12 @@ import pl.pz.oszczedzator3000.repository.ExpenseRepository;
 import pl.pz.oszczedzator3000.repository.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ExpenseService {
@@ -44,6 +50,48 @@ public class ExpenseService {
             throw new UserNotFoundException(userId);
         }
     }
+
+    @Transactional
+    public Page<ExpenseResponseDto> getUserExpensePageFiltered(Long userId,
+                                                               int page,
+                                                               int size,
+                                                               String name,
+                                                               ExpenseFilterRequestDto expenseFilterRequestDto) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        }
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("date").descending());
+
+        List<ExpenseResponseDto> list = expenseRepository.streamAllByUser(user.get())
+                .filter(expense -> name == null || name.equals(expense.getName()))
+                .filter(expense -> expenseFilterRequestDto.getCategory() == null ||
+                        expense.getCategory().equals(expenseFilterRequestDto.getCategory()))
+                .filter(expense -> expense.getValue() >= expenseFilterRequestDto.getMinValue())
+                .filter(expense -> expenseFilterRequestDto.getMaxValue() == 0.0 ||
+                        expense.getValue() <= expenseFilterRequestDto.getMaxValue())
+                .filter(expense -> expenseFilterRequestDto.getStartDate() == null ||
+                        expense.getDate().compareTo(expenseFilterRequestDto.getStartDate()) >= 0)
+                .filter(expense -> expenseFilterRequestDto.getEndDate() == null ||
+                        expense.getDate().compareTo(expenseFilterRequestDto.getEndDate()) <= 0)
+                .map(expenseMapper::mapToExpenseResponseDto)
+                .collect(Collectors.toList());
+
+        List<ExpenseResponseDto> pageToReturn = new ArrayList<>();
+        int startIndex = page * size;
+        int endIndex = startIndex + size;
+
+        if (list.size() < endIndex) {
+            endIndex = list.size();
+        }
+
+        for(int i = startIndex; i < endIndex; i++) {
+            pageToReturn.add(list.get(i));
+        }
+
+        return new PageImpl<>(pageToReturn, pageRequest, list.size());
+    }
+
 
     public Optional<Expense> postExpense(Long userId, ExpenseRequestDto expenseRequestDto) {
         Optional<User> user = userRepository.findById(userId);

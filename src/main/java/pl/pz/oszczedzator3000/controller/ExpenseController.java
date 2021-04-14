@@ -34,13 +34,13 @@ public class ExpenseController {
     }
 
     @GetMapping("users/{userId}/expenses/filtered")
-    public ResponseEntity<List<Expense>> getExpensesFiltered(@PathVariable Long userId,
+    public ResponseEntity<Page<ExpenseResponseDto>> getExpensesFiltered(@PathVariable Long userId,
                                                              @RequestParam(value = "page", defaultValue = "0") int page,
                                                              @RequestParam(value = "size", defaultValue = "10") int size,
                                                              @RequestParam(value = "name", required = false) String name,
                                                              @RequestBody(required = false) ExpenseFilterRequestDto expenseFilterRequestDto) {
-        //TODO filtered expenses
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(expenseService.getUserExpensePageFiltered(userId,
+                page, size, name, expenseFilterRequestDto) ,HttpStatus.OK);
     }
 
     @PostMapping("/users/{userId}/expenses")
