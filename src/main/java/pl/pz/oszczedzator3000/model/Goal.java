@@ -23,7 +23,7 @@ public class Goal {
     private Long goalId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Category category;
 
     @Column(nullable = false)

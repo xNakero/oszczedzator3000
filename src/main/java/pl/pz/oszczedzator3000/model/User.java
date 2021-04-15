@@ -43,11 +43,12 @@ public class User {
                 cascade = CascadeType.ALL)
     private Set<Goal> goals;
 
-    @OneToMany(mappedBy = "user",
-            cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Expense> expenses;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime creationDate;
 
+    @OneToOne(mappedBy = "user")
+    private UserPersonalDetails userPersonalDetails;
 }
