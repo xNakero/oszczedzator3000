@@ -1,7 +1,6 @@
 package pl.pz.oszczedzator3000.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -19,12 +18,10 @@ import pl.pz.oszczedzator3000.repository.ExpenseRepository;
 import pl.pz.oszczedzator3000.repository.UserRepository;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ExpenseService {
@@ -96,12 +93,14 @@ public class ExpenseService {
     public Optional<Expense> postExpense(Long userId, ExpenseRequestDto expenseRequestDto) {
         Optional<User> user = userRepository.findById(userId);
         Expense expense = expenseMapper.mapToExpense(expenseRequestDto);
-        if (user.isPresent() && !expenseRequestDto.hasNullAttribute()) {
+        if(user.isEmpty()) {
+            throw new UserNotFoundException(userId);
+        } else if (!expenseRequestDto.hasInvalidAttributes()) {
             expense.setUser(user.get());
             expenseRepository.save(expense);
             return Optional.of(expense);
         } else {
-            throw new UserNotFoundException(userId);
+            return Optional.empty();
         }
     }
 
@@ -123,7 +122,7 @@ public class ExpenseService {
         if (expenseRequestDto.getDate() != null) {
             expense.setDate(expenseRequestDto.getDate());
         }
-        if (expenseRequestDto.getValue() != 0.0) {
+        if (expenseRequestDto.getValue() > 0.0) {
             expense.setValue(expenseRequestDto.getValue());
         }
         if (expenseRequestDto.getName() != null) {

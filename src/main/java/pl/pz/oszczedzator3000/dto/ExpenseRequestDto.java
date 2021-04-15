@@ -17,7 +17,7 @@ public class ExpenseRequestDto {
     private double value;
     private LocalDate date;
 
-    public boolean hasNullAttribute() {
-        return category == null || name == null || value == 0.0 || date == null;
+    public boolean hasInvalidAttributes() {
+        return category == null || name == null || value <= 0.0 || date == null;
     }
 }
