@@ -1,0 +1,29 @@
+package pl.pz.oszczedzator3000.dto;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.pz.oszczedzator3000.model.enums.Profession;
+import pl.pz.oszczedzator3000.model.enums.RelationshipStatus;
+import pl.pz.oszczedzator3000.model.enums.Sex;
+
+@Getter
+@Setter
+public class UserPersonalDetailsDto {
+
+    private double salary;
+    private Profession profession;
+    private int age;
+    private Sex sex;
+    private RelationshipStatus relationshipStatus;
+    private int kids;
+
+    public UserPersonalDetailsDto() {
+        this.salary = -1.0;
+        this.kids = -1;
+    }
+
+    public boolean hasInvalidData() {
+        return salary < 0 || profession == null || age < 18 || sex == null || relationshipStatus == null || kids < 0;
+    }
+}
