@@ -1,9 +1,6 @@
 package pl.pz.oszczedzator3000.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pl.pz.oszczedzator3000.model.enums.Profession;
 import pl.pz.oszczedzator3000.model.enums.RelationshipStatus;
 import pl.pz.oszczedzator3000.model.enums.Sex;
@@ -14,6 +11,7 @@ import javax.persistence.*;
 @Table(name = "user_personal_details")
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPersonalDetails {
@@ -43,7 +41,8 @@ public class UserPersonalDetails {
     @Column(nullable = false)
     private int kids;
 
-    @OneToOne
+    @ToString.Exclude
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     private User user;
 }

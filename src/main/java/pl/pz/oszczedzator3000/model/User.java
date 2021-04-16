@@ -49,6 +49,6 @@ public class User {
     @Column(nullable = false, updatable = false)
     private LocalDateTime creationDate;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserPersonalDetails userPersonalDetails;
 }
