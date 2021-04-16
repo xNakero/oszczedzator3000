@@ -5,13 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.pz.oszczedzator3000.dto.ExpenseFilterRequestDto;
-import pl.pz.oszczedzator3000.dto.ExpenseRequestDto;
-import pl.pz.oszczedzator3000.dto.ExpenseResponseDto;
+import pl.pz.oszczedzator3000.dto.expense.ExpenseFilterRequestDto;
+import pl.pz.oszczedzator3000.dto.expense.ExpenseRequestDto;
+import pl.pz.oszczedzator3000.dto.expense.ExpenseResponseDto;
 import pl.pz.oszczedzator3000.model.Expense;
 import pl.pz.oszczedzator3000.service.ExpenseService;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController

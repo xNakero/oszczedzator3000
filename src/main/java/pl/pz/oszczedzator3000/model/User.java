@@ -39,8 +39,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> authorities;
 
-    @OneToMany(mappedBy = "user",
-                cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Goal> goals;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

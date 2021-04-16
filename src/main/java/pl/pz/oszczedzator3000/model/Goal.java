@@ -1,9 +1,6 @@
 package pl.pz.oszczedzator3000.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pl.pz.oszczedzator3000.model.enums.Category;
 
 import javax.persistence.*;
@@ -27,7 +24,7 @@ public class Goal {
     private Category category;
 
     @Column(nullable = false)
-    private String goalName;
+    private String name;
 
     @Column(nullable = false)
     private double price;
@@ -35,6 +32,7 @@ public class Goal {
     @Column(nullable = false)
     private LocalDateTime targetDate;
 
+    @ToString.Exclude
     @ManyToOne(cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

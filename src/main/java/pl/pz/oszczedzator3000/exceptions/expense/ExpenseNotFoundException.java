@@ -1,4 +1,4 @@
-package pl.pz.oszczedzator3000.exceptions;
+package pl.pz.oszczedzator3000.exceptions.expense;
 
 public class ExpenseNotFoundException extends RuntimeException{
 

@@ -1,4 +1,4 @@
-package pl.pz.oszczedzator3000.dto;
+package pl.pz.oszczedzator3000.dto.expense;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,11 +10,11 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ExpenseFilterRequestDto {
+public class ExpenseResponseDto {
 
+    private Long expenseId;
     private Category category;
-    private double minValue;
-    private double maxValue;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private String name;
+    private double value;
+    private LocalDate date;
 }

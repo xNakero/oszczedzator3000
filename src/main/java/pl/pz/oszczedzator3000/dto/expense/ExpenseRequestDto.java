@@ -1,4 +1,4 @@
-package pl.pz.oszczedzator3000.dto;
+package pl.pz.oszczedzator3000.dto.expense;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
