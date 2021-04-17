@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import pl.pz.oszczedzator3000.dto.expense.ExpenseFilterRequestDto;
+import pl.pz.oszczedzator3000.dto.expense.ExpenseResponseDto;
+import pl.pz.oszczedzator3000.dto.goal.GoalFilterRequestDto;
 import pl.pz.oszczedzator3000.dto.goal.GoalRequestDto;
-import pl.pz.oszczedzator3000.dto.goal.GoalResponseDetailsDto;
 import pl.pz.oszczedzator3000.dto.goal.GoalResponseDto;
 import pl.pz.oszczedzator3000.model.Goal;
 import pl.pz.oszczedzator3000.service.GoalService;
@@ -33,20 +35,21 @@ public class GoalController {
         return new ResponseEntity<>(goals, HttpStatus.OK);
     }
 
-    @GetMapping("users/{userId}/goals/{goalId}")
-    public ResponseEntity<GoalResponseDetailsDto> getUsersGoalsPageDetails(@PathVariable Long userId,
-                                                                                 @PathVariable Long goalId,
-                                                                                 @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                                 @RequestParam(value = "size", defaultValue = "10") int size) {
-        GoalResponseDetailsDto goals = goalService.getUserGoalPageDetails(userId, goalId, page, size);
-        return new ResponseEntity<>(goals, HttpStatus.OK);
+    @GetMapping("users/{userId}/goals/filtered")
+    public ResponseEntity<Page<GoalResponseDto>> getGoalsFiltered(@PathVariable Long userId,
+                                                                        @RequestParam(value = "page", defaultValue = "0") int page,
+                                                                        @RequestParam(value = "size", defaultValue = "10") int size,
+                                                                        @RequestParam(value = "name", required = false) String name,
+                                                                     @RequestBody(required = false) GoalFilterRequestDto goalFilterRequestDto) {
+        return new ResponseEntity<>(goalService.getUserGoalPageFiltered(userId,
+                page, size, name, goalFilterRequestDto) ,HttpStatus.OK);
     }
 
     @PostMapping("/users/{userId}/goals")
     public ResponseEntity<String> postGoals(@PathVariable Long userId,
                                             @RequestBody GoalRequestDto goalRequestDto) {
-        Optional<Goal> e = goalService.postGoal(userId, goalRequestDto);
-        if (e.isPresent()) {
+        Optional<Goal> g = goalService.postGoal(userId, goalRequestDto);
+        if (g.isPresent()) {
             return new ResponseEntity<>("Goal was created", HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

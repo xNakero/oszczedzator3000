@@ -5,14 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.pz.oszczedzator3000.model.enums.Category;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class GoalRequestDetailsDto extends GoalRequestDto {
+public class GoalFilterRequestDto {
 
-    private int toTargetDate;
-    private double amount;
-    private boolean isPossible;
+    private Category category;
 }

@@ -6,11 +6,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import pl.pz.oszczedzator3000.dto.expense.ExpenseFilterRequestDto;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseResponseDto;
+import pl.pz.oszczedzator3000.dto.goal.GoalFilterRequestDto;
 import pl.pz.oszczedzator3000.dto.goal.GoalRequestDto;
-import pl.pz.oszczedzator3000.dto.goal.GoalResponseDetailsDto;
 import pl.pz.oszczedzator3000.dto.goal.GoalResponseDto;
 import pl.pz.oszczedzator3000.exceptions.expense.ExpenseNotFoundException;
+import pl.pz.oszczedzator3000.exceptions.goal.GoalNotFoundException;
+import pl.pz.oszczedzator3000.exceptions.user.UserHasTooManyGoalsException;
+import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.mapper.ExpenseMapper;
 import pl.pz.oszczedzator3000.mapper.GoalMapper;
@@ -32,17 +36,13 @@ public class GoalService {
 
     private GoalRepository goalRepository;
     private UserRepository userRepository;
-    private ExpenseRepository expenseRepository;
     private GoalMapper goalMapper;
-    private ExpenseMapper expenseMapper;
 
     @Autowired
-    public GoalService(GoalRepository goalRepository, UserRepository userRepository, ExpenseRepository expenseRepository, GoalMapper goalMapper, ExpenseMapper expenseMapper) {
+    public GoalService(GoalRepository goalRepository, UserRepository userRepository, GoalMapper goalMapper) {
         this.goalRepository = goalRepository;
         this.userRepository = userRepository;
-        this.expenseRepository = expenseRepository;
         this.goalMapper = goalMapper;
-        this.expenseMapper = expenseMapper;
     }
 
     public Page<GoalResponseDto> getUserGoalPage(Long userId, int page, int size) {
@@ -56,41 +56,54 @@ public class GoalService {
     }
 
     @Transactional
-    public GoalResponseDetailsDto getUserGoalPageDetails(Long userId, Long goalId, int page, int size) {
+    public Page<GoalResponseDto> getUserGoalPageFiltered(Long userId,
+                                                               int page,
+                                                               int size,
+                                                               String name,
+                                                         GoalFilterRequestDto goalFilterRequestDto) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             throw new UserNotFoundException(userId);
         }
-        Optional<Goal> goalOptional = goalRepository.findById(goalId);
-        if (goalOptional.isEmpty()) {
-            throw new ExpenseNotFoundException(goalId);
-        }
-        GoalResponseDetailsDto goalResponseDetailsDto = goalMapper.mapToGoalResponseDetailsDto(goalOptional.get());
-        if (goalResponseDetailsDto.getCategory() != null && goalResponseDetailsDto.getTargetDate() != null &&
-                goalResponseDetailsDto.getPrice() > 0.0 && goalResponseDetailsDto.getName() != null) {
-            goalResponseDetailsDto.setToTargetDate((int)ChronoUnit.DAYS.between(goalResponseDetailsDto.getTargetDate(), LocalDateTime.now()));
-            goalResponseDetailsDto.setAmount(goalResponseDetailsDto.getPrice() - expenseRepository
-                    .streamAllByUser(user.get())
-                    .map(expenseMapper::mapToExpenseResponseDto)
-                    .collect(Collectors.toList())
-                    .stream()
-                    .mapToDouble(ExpenseResponseDto::getValue)
-                    .sum());
-            goalResponseDetailsDto.setPossible(goalResponseDetailsDto.getToTargetDate() > 0 && goalResponseDetailsDto.getAmount() > 0);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("targetDate").descending());
 
+        List<GoalResponseDto> list = goalRepository.streamAllByUser(user.get())
+                .filter(expense -> name == null || name.equals(expense.getName()))
+                .filter(expense -> goalFilterRequestDto.getCategory() == null ||
+                        expense.getCategory().equals(goalFilterRequestDto.getCategory()))
+                .map(goalMapper::mapToGoalResponseDto)
+                .collect(Collectors.toList());
+
+        List<GoalResponseDto> pageToReturn = new ArrayList<>();
+        int startIndex = page * size;
+        int endIndex = startIndex + size;
+
+        if (list.size() < endIndex) {
+            endIndex = list.size();
         }
-        return goalResponseDetailsDto;
+
+        for(int i = startIndex; i < endIndex; i++) {
+            pageToReturn.add(list.get(i));
+        }
+
+        return new PageImpl<>(pageToReturn, pageRequest, list.size());
     }
 
+    @Transactional
     public Optional<Goal> postGoal(Long userId, GoalRequestDto goalRequestDto) {
         Optional<User> user = userRepository.findById(userId);
-        Goal expense = goalMapper.mapToGoal(goalRequestDto);
-        if (user.isEmpty()) {
+        if (user.isPresent()) {
+            if(goalRepository.streamAllByUser(user.get()).count() >= 10){
+                throw new UserHasTooManyGoalsException(userId);
+            }
+        } else {
             throw new UserNotFoundException(userId);
-        } else if (!goalRequestDto.hasInvalidAttributes()) {
-            expense.setUser(user.get());
-            goalRepository.save(expense);
-            return Optional.of(expense);
+        }
+        if (!goalRequestDto.hasInvalidAttributes()) {
+            Goal goal = goalMapper.mapToGoal(goalRequestDto);
+            goal.setUser(user.get());
+            goalRepository.save(goal);
+            return Optional.of(goal);
         } else {
             return Optional.empty();
         }
@@ -104,9 +117,11 @@ public class GoalService {
         }
         Optional<Goal> goalOptional = goalRepository.findById(goalId);
         if (goalOptional.isEmpty()) {
-            throw new ExpenseNotFoundException(goalId);
+            throw new GoalNotFoundException(goalId);
         }
-
+        if(!user.get().getGoals().contains(goalOptional.get())){
+            throw new UserNotAllowedException(userId);
+        }
         Goal goal = goalOptional.get();
         if (goalRequestDto.getCategory() != null) {
             goal.setCategory(goalRequestDto.getCategory());
@@ -130,7 +145,10 @@ public class GoalService {
         }
         Optional<Goal> goalOptional = goalRepository.findById(goalId);
         if (goalOptional.isEmpty()) {
-            throw new ExpenseNotFoundException(goalId);
+            throw new GoalNotFoundException(goalId);
+        }
+        if(!user.get().getGoals().contains(goalOptional.get())){
+            throw new UserNotAllowedException(userId);
         }
         goalRepository.delete(goalOptional.get());
     }

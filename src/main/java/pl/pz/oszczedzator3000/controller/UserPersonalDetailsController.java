@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.pz.oszczedzator3000.dto.UserPersonalDetailsDto;
-import pl.pz.oszczedzator3000.model.UserPersonalDetails;
+import pl.pz.oszczedzator3000.dto.userpersonaldetails.UserPersonalDetailsDto;
 import pl.pz.oszczedzator3000.service.UserPersonalDetailsService;
 
 import java.util.Optional;

@@ -10,6 +10,7 @@ import pl.pz.oszczedzator3000.dto.expense.ExpenseFilterRequestDto;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseRequestDto;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseResponseDto;
 import pl.pz.oszczedzator3000.exceptions.expense.ExpenseNotFoundException;
+import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.mapper.ExpenseMapper;
 import pl.pz.oszczedzator3000.model.Expense;
@@ -114,7 +115,9 @@ public class ExpenseService {
         if (expenseOptional.isEmpty()) {
             throw new ExpenseNotFoundException(expenseId);
         }
-
+        if(!user.get().getExpenses().contains(expenseOptional.get())){
+            throw new UserNotAllowedException(userId);
+        }
         Expense expense = expenseOptional.get();
         if (expenseRequestDto.getCategory() != null) {
             expense.setCategory(expenseRequestDto.getCategory());
@@ -139,6 +142,9 @@ public class ExpenseService {
         Optional<Expense> expenseOptional = expenseRepository.findById(expenseId);
         if (expenseOptional.isEmpty()) {
             throw new ExpenseNotFoundException(expenseId);
+        }
+        if(!user.get().getExpenses().contains(expenseOptional.get())){
+            throw new UserNotAllowedException(userId);
         }
         expenseRepository.delete(expenseOptional.get());
     }

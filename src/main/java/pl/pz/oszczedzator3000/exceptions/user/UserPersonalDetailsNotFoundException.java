@@ -1,4 +1,4 @@
-package pl.pz.oszczedzator3000.exceptions;
+package pl.pz.oszczedzator3000.exceptions.user;
 
 public class UserPersonalDetailsNotFoundException extends RuntimeException {
 

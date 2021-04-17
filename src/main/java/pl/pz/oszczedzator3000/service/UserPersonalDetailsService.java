@@ -1,11 +1,10 @@
 package pl.pz.oszczedzator3000.service;
 
-import com.fasterxml.classmate.TypeBindings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.pz.oszczedzator3000.dto.UserPersonalDetailsDto;
-import pl.pz.oszczedzator3000.exceptions.UserNotFoundException;
-import pl.pz.oszczedzator3000.exceptions.UserPersonalDetailsNotFoundException;
+import pl.pz.oszczedzator3000.dto.userpersonaldetails.UserPersonalDetailsDto;
+import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
+import pl.pz.oszczedzator3000.exceptions.user.UserPersonalDetailsNotFoundException;
 import pl.pz.oszczedzator3000.mapper.UserPersonalDetailsMapper;
 import pl.pz.oszczedzator3000.model.User;
 import pl.pz.oszczedzator3000.model.UserPersonalDetails;

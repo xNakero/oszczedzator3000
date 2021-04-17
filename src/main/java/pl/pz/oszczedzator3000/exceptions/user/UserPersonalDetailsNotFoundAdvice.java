@@ -1,4 +1,4 @@
-package pl.pz.oszczedzator3000.exceptions;
+package pl.pz.oszczedzator3000.exceptions.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
