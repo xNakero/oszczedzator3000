@@ -12,6 +12,5 @@ import java.util.Set;
 public class ExpenseOptimiserResponseDto {
 
     private Set<ExpenseOptimiserResponseSingleDataDto> userData;
-    private Set<ExpenseOptimiserResponseSingleDataDto> allData;
     private Set<ExpenseOptimiserResponseSingleDataDto> similarUsersData;
 }
