@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.pz.oszczedzator3000.model.enums.Category;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,5 +17,5 @@ public class GoalResponseDto {
     private Category category;
     private String name;
     private double price;
-    private LocalDateTime targetDate;
+    private LocalDate targetDate;
 }

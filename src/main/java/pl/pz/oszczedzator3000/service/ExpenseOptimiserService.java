@@ -1,5 +1,6 @@
 package pl.pz.oszczedzator3000.service;
 
+import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.pz.oszczedzator3000.Constants;
@@ -7,7 +8,6 @@ import pl.pz.oszczedzator3000.dto.expenseoptimiser.ExpenseOptimiserResponseDto;
 import pl.pz.oszczedzator3000.dto.expenseoptimiser.ExpenseOptimiserResponseSingleDataDto;
 import pl.pz.oszczedzator3000.dto.expenseoptimiser.FiltrationExpenseOptimiserRequestDto;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
-import pl.pz.oszczedzator3000.exceptions.user.UserPersonalDetailsNotFoundAdvice;
 import pl.pz.oszczedzator3000.exceptions.user.UserPersonalDetailsNotFoundException;
 import pl.pz.oszczedzator3000.model.Expense;
 import pl.pz.oszczedzator3000.model.User;
@@ -17,9 +17,12 @@ import pl.pz.oszczedzator3000.repository.UserPersonalDetailsRepository;
 import pl.pz.oszczedzator3000.repository.UserRepository;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ExpenseOptimiserService {
@@ -122,7 +125,7 @@ public class ExpenseOptimiserService {
             ExpenseOptimiserResponseSingleDataDto singleDataDto = new ExpenseOptimiserResponseSingleDataDto();
             singleDataDto.setCategory(category);
             singleDataDto.setExpenseCount(expenseCount);
-            singleDataDto.setAverageSpent(averageSpent.getAsDouble());
+            singleDataDto.setAverageSpent(Precision.round(averageSpent.getAsDouble(), 2));
             return Optional.of(singleDataDto);
         }
         return Optional.empty();

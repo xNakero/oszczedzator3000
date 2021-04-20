@@ -4,7 +4,7 @@ import lombok.*;
 import pl.pz.oszczedzator3000.model.enums.Category;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "goal")
@@ -30,7 +30,7 @@ public class Goal {
     private double price;
 
     @Column(nullable = false)
-    private LocalDateTime targetDate;
+    private LocalDate targetDate;
 
     @ToString.Exclude
     @ManyToOne(cascade = {CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.pz.oszczedzator3000.model.enums.Category;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -15,7 +16,7 @@ public class GoalRequestDto {
     private Category category;
     private String name;
     private double price;
-    private LocalDateTime targetDate;
+    private LocalDate targetDate;
 
     public boolean hasInvalidAttributes() {
         return category == null || name == null || price <= 0.0 || targetDate == null;
