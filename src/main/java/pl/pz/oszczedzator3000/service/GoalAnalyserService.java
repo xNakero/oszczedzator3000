@@ -7,6 +7,7 @@ import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.dto.goalanalyser.GoalAnalyserRequestDto;
 import pl.pz.oszczedzator3000.dto.goalanalyser.GoalAnalyserResponseDto;
 import pl.pz.oszczedzator3000.exceptions.goal.GoalNotFoundException;
+import pl.pz.oszczedzator3000.exceptions.goalanalyser.ContributionHigherThanPriceException;
 import pl.pz.oszczedzator3000.exceptions.goalanalyser.InvalidDatesException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.model.Expense;
@@ -36,6 +37,9 @@ public class GoalAnalyserService {
                                                          GoalAnalyserRequestDto goalAnalyserRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalNotFoundException(goalId));
+        if(goalAnalyserRequestDto.getStartDate() == null || goalAnalyserRequestDto.getEndDate() == null) {
+            throw new InvalidDatesException("At least one of dates is null.");
+        }
         if (goalAnalyserRequestDto.getEndDate().compareTo(goalAnalyserRequestDto.getStartDate()) <= 0) {
             throw new InvalidDatesException("End date happens before start date.");
         }
@@ -44,6 +48,9 @@ public class GoalAnalyserService {
         }
         if (LocalDate.now().compareTo(goal.getTargetDate()) >= 0) {
             throw new InvalidDatesException("Target date has already passed");
+        }
+        if (goalAnalyserRequestDto.getInitialContribution() >= goal.getPrice()) {
+            throw new ContributionHigherThanPriceException();
         }
 
         GoalAnalyserResponseDto response = new GoalAnalyserResponseDto();
