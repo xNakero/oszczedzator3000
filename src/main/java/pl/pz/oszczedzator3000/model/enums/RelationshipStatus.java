@@ -4,6 +4,5 @@ public enum RelationshipStatus {
     MARRIED,
     SINGLE,
     ENGAGED,
-    COMPLICATED,
-    HAREM
+    COMPLICATED
 }
