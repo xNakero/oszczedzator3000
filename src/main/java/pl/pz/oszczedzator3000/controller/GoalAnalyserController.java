@@ -19,9 +19,9 @@ public class GoalAnalyserController {
         this.goalAnalyserService = goalAnalyserService;
     }
 
-    @GetMapping("analyser")
-    public ResponseEntity<GoalAnalyserResponseDto> getGoalAnalyzerResult(@RequestParam Long userId,
-                                                                         @RequestParam Long goalId,
+    @GetMapping("users/{userId}/goals/{goalId}/analyser")
+    public ResponseEntity<GoalAnalyserResponseDto> getGoalAnalyzerResult(@PathVariable Long userId,
+                                                                         @PathVariable Long goalId,
                                                                          @RequestBody GoalAnalyserRequestDto goalAnalyserRequestDto) {
         return new ResponseEntity<>(goalAnalyserService.getGoalAnalyserResult(userId, goalId, goalAnalyserRequestDto),
                 HttpStatus.OK);

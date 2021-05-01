@@ -7,6 +7,7 @@ import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.dto.expenseoptimiser.ExpenseOptimiserResponseDto;
 import pl.pz.oszczedzator3000.dto.expenseoptimiser.ExpenseOptimiserResponseSingleDataDto;
 import pl.pz.oszczedzator3000.dto.expenseoptimiser.FiltrationExpenseOptimiserRequestDto;
+import pl.pz.oszczedzator3000.exceptions.expenseoptimiser.NoCategoriesException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.exceptions.user.UserPersonalDetailsNotFoundException;
 import pl.pz.oszczedzator3000.model.Expense;
@@ -44,6 +45,9 @@ public class ExpenseOptimiserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findById(userId)
                 .orElseThrow(() -> new UserPersonalDetailsNotFoundException(userId));
+        if (filtrationExpenseOptimiserRequestDto.getCategories() == null) {
+            throw new NoCategoriesException();
+        }
         List<User> users = filterUsers(filtrationExpenseOptimiserRequestDto, userPersonalDetails);
         users.remove(user);
         Set<ExpenseOptimiserResponseSingleDataDto> similarUsersStatistics =

@@ -7,7 +7,7 @@ import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.dto.goalanalyser.GoalAnalyserRequestDto;
 import pl.pz.oszczedzator3000.dto.goalanalyser.GoalAnalyserResponseDto;
 import pl.pz.oszczedzator3000.exceptions.goal.GoalNotFoundException;
-import pl.pz.oszczedzator3000.exceptions.goalanalyser.ContributionHigherThanPriceException;
+import pl.pz.oszczedzator3000.exceptions.goalanalyser.InvalidValueException;
 import pl.pz.oszczedzator3000.exceptions.goalanalyser.InvalidDatesException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.model.Expense;
@@ -50,7 +50,10 @@ public class GoalAnalyserService {
             throw new InvalidDatesException("Target date has already passed");
         }
         if (goalAnalyserRequestDto.getInitialContribution() >= goal.getPrice()) {
-            throw new ContributionHigherThanPriceException();
+            throw new InvalidValueException("Initial Contribution is higher than price");
+        }
+        if (goalAnalyserRequestDto.getInitialContribution() < 0) {
+            throw new InvalidValueException("Initial contribution is negative");
         }
 
         GoalAnalyserResponseDto response = new GoalAnalyserResponseDto();
@@ -71,23 +74,23 @@ public class GoalAnalyserService {
                 user.getUserPersonalDetails().getSalary();
 
         if (earnedInTimePeriod > spendingSum) {
-            response.setCanBeAchieved(true);
+            response.setCanAchieve(true);
             double possibleSavingsPerDay = (earnedInTimePeriod - spendingSum)
                     * ((double) 1 / daysBetweenEndAndStartDates);
             possibleSavingsPerDay = Precision.round(possibleSavingsPerDay, 2);
-            response.setAveragePerDayPossibleSavings(possibleSavingsPerDay);
+            response.setAverageDailyPossibleSavings(possibleSavingsPerDay);
         } else {
-            response.setCanBeAchieved(false);
+            response.setCanAchieve(false);
         }
 
         long daysUntilTargetDate = ChronoUnit.DAYS
                 .between(LocalDate.now(), goal.getTargetDate());
         double savingsPerDayNeeded = ((double) 1 / daysUntilTargetDate) * moneyToCollect;
         savingsPerDayNeeded = Precision.round(savingsPerDayNeeded, 2);
-        response.setAveragePerDayNecessarySavings(savingsPerDayNeeded);
+        response.setAverageDailyNecessarySavings(savingsPerDayNeeded);
 
-        response.setCanBeAchievedUntilEndDate(
-                response.getAveragePerDayPossibleSavings() > response.getAveragePerDayNecessarySavings());
+        response.setCanAchieveBeforeEndDate(
+                response.getAverageDailyPossibleSavings() > response.getAverageDailyNecessarySavings());
 
         return response;
     }

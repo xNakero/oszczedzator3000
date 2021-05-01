@@ -53,7 +53,6 @@ public class ExpenseService {
     public Page<ExpenseResponseDto> getUserExpensePageFiltered(Long userId,
                                                                int page,
                                                                int size,
-                                                               String name,
                                                                ExpenseFilterRequestDto expenseFilterRequestDto) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
@@ -62,7 +61,8 @@ public class ExpenseService {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("date").descending());
 
         List<ExpenseResponseDto> list = expenseRepository.streamAllByUser(user.get())
-                .filter(expense -> name == null || name.equals(expense.getName()))
+                .filter(expense -> expenseFilterRequestDto.getName() == null ||
+                        expenseFilterRequestDto.getName().equals(expense.getName()))
                 .filter(expense -> expenseFilterRequestDto.getCategory() == null ||
                         expense.getCategory().equals(expenseFilterRequestDto.getCategory()))
                 .filter(expense -> expense.getValue() >= expenseFilterRequestDto.getMinValue())

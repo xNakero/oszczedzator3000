@@ -1,5 +1,6 @@
 package pl.pz.oszczedzator3000.dto.goal;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,7 @@ public class GoalRequestDto {
     private Category category;
     private String name;
     private double price;
+    @JsonAlias("target_date")
     private LocalDate targetDate;
 
     public boolean hasInvalidAttributes() {

@@ -1,5 +1,7 @@
 package pl.pz.oszczedzator3000.dto.userpersonaldetails;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +17,8 @@ public class UserPersonalDetailsDto {
     private Profession profession;
     private int age;
     private Sex sex;
+    @JsonAlias("relationship_status")
+    @JsonProperty("relationship_status")
     private RelationshipStatus relationshipStatus;
     private int kids;
 

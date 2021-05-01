@@ -1,5 +1,6 @@
 package pl.pz.oszczedzator3000.dto.expense;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ExpenseResponseDto {
 
+    @JsonProperty("expense_id")
     private Long expenseId;
     private Category category;
     private String name;
