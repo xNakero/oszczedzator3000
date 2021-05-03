@@ -196,12 +196,12 @@ This request has the same optional parameters as unfiltered one, however it acce
 api/v1/users/{user_id}/goals
 ```
 ``user_id`` - unique id of the user
-This request accepts [Request with expense data](#request-with-goal-data) as request body. Goal can be posted only if every 
+This request accepts [Request with goal data](#request-with-goal-data) as request body. Goal can be posted only if every 
 property is filled. 
 
 #### PUT goal
 ```
-api//users/{user_id}/goals/{goal_id}
+api/users/{user_id}/goals/{goal_id}
 ```
 * ``user_id`` - unique id of the user
 * ``goal_id`` - unique id of an goal
