@@ -16,10 +16,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class Role {
 
-    private static final long serialVersionUID = 1L;
-
-    private static final String PREFIX = "ROLE_";
-
     @Id
     @Column(name = "role_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,16 +24,7 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "authorities")
+    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL)
     private Set<User> users;
-
-    public Role(pl.pz.oszczedzator3000.model.enums.Role name) {
-        this.name = PREFIX + name.toString();
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
 
 }
