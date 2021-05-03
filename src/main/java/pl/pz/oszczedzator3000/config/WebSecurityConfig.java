@@ -1,15 +1,20 @@
 package pl.pz.oszczedzator3000.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import pl.pz.oszczedzator3000.service.UserService;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalAuthentication
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserService userService;
@@ -36,10 +41,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/v1/users/**").hasRole("USER")
-                .antMatchers("api/v1/enums/**",
-                        "api/v1/login",
-                        "api/v1/register").permitAll()
                 .and()
-                .httpBasic();
+                .addFilter(new JwtFilter(authenticationManager()));
+    }
+
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web
+                .ignoring().antMatchers("/api/v1/login",
+                "/api/v1/register",
+                "/api/v1/enums/**",
+                "/h2-console/**");
     }
 }

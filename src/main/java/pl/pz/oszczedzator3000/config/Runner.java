@@ -54,7 +54,7 @@ public class Runner implements CommandLineRunner {
         User user2 = new User();
         user2.setUsername("user");
         user2.setPassword(passwordConfig.passwordEncoder().encode("password"));
-        user2.setRoles(Stream.of(roleRepository.findById(2L).get()).collect(Collectors.toSet()));
+        user2.setRoles(Stream.of(role2).collect(Collectors.toSet()));
         roles = role2.getUsers();
         if (roles == null) {
             roles = new HashSet<>();
