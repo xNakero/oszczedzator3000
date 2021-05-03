@@ -58,6 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .ignoring().antMatchers("/api/v1/login",
                 "/api/v1/register",
                 "/api/v1/enums/**",
-                "/h2-console/**");
+                "/h2-console/**",
+                "extend-token");
     }
 }

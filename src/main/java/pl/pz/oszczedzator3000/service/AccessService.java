@@ -11,13 +11,13 @@ import pl.pz.oszczedzator3000.config.JwtTokenProvider;
 import pl.pz.oszczedzator3000.dto.user.UserAuthenticationDto;
 
 @Service
-public class AuthenticationService {
+public class AccessService {
 
     private AuthenticationManager authenticationManager;
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AuthenticationService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    public AccessService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -34,6 +34,11 @@ public class AuthenticationService {
             return e.getMessage();
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return jwtTokenProvider.generateToken(authentication);
+        return jwtTokenProvider.generateTokenLogin(authentication);
+    }
+
+    public String generateNewToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return jwtTokenProvider.generateTokenExtendDuration(authentication);
     }
 }
