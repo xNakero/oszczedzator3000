@@ -1,4 +1,4 @@
-# Oszczedzator3000 - Beckend
+# Oszczedzator3000 - Backend
 
 # Table of contents 
 * [About the project](#about-the-project)
