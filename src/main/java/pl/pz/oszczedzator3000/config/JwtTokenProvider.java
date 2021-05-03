@@ -5,7 +5,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-import pl.pz.oszczedzator3000.dto.user.UserAuthenticationDto;
+import pl.pz.oszczedzator3000.model.User;
 
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -17,12 +17,14 @@ public class JwtTokenProvider {
     private final int EXPIRATION_AFTER = 1000 * 60 * 60 * 24 * 7;
 
     public String generateToken(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
         long now = System.currentTimeMillis();
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("roles", authentication.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.joining(",")))
+                .claim("id", user.getUserId())
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + EXPIRATION_AFTER))
                 .signWith(SignatureAlgorithm.HS256, SECRET)

@@ -41,13 +41,14 @@ public class JwtFilter extends BasicAuthenticationFilter {
 
         String username = claimsJws.getBody().get("sub").toString();
         String roleString = claimsJws.getBody().get("roles").toString();
-        System.out.println(roleString);
+        Long id = Long.parseLong(claimsJws.getBody().get("id").toString());
         Set<String> roles = Set.of(roleString.split(","));
-        System.out.println(roles);
         Set<SimpleGrantedAuthority> authorities = roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toSet());
-        System.out.println(authorities);
-        return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
+                = new UsernamePasswordAuthenticationToken(username, null, authorities);
+        usernamePasswordAuthenticationToken.setDetails(id);
+        return usernamePasswordAuthenticationToken;
     }
 }

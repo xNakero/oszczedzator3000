@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import pl.pz.oszczedzator3000.dto.expense.ExpenseFilterRequestDto;
@@ -27,6 +28,7 @@ public class GoalController {
         this.goalService = goalService;
     }
 
+    @PreAuthorize(value = "#userId == authentication.details")
     @GetMapping("users/{userId}/goals")
     public ResponseEntity<Page<GoalResponseDto>> getUsersGoalsPage(@PathVariable Long userId,
                                                                    @RequestParam(value = "page", defaultValue = "0") int page,
@@ -35,6 +37,7 @@ public class GoalController {
         return new ResponseEntity<>(goals, HttpStatus.OK);
     }
 
+    @PreAuthorize(value = "#userId == authentication.details")
     @GetMapping("users/{userId}/goals/filtered")
     public ResponseEntity<Page<GoalResponseDto>> getGoalsFiltered(@PathVariable Long userId,
                                                                         @RequestParam(value = "page", defaultValue = "0") int page,
@@ -45,6 +48,7 @@ public class GoalController {
                 page, size, name, goalFilterRequestDto) ,HttpStatus.OK);
     }
 
+    @PreAuthorize(value = "#userId == authentication.details")
     @PostMapping("/users/{userId}/goals")
     public ResponseEntity<String> postGoals(@PathVariable Long userId,
                                             @RequestBody GoalRequestDto goalRequestDto) {
@@ -56,6 +60,7 @@ public class GoalController {
         }
     }
 
+    @PreAuthorize(value = "#userId == authentication.details")
     @PutMapping("/users/{userId}/goals/{goalId}")
     public ResponseEntity<GoalResponseDto> updateGoal(@PathVariable Long userId,
                                                          @PathVariable Long goalId,
@@ -64,6 +69,7 @@ public class GoalController {
                 HttpStatus.OK);
     }
 
+    @PreAuthorize(value = "#userId == authentication.details")
     @DeleteMapping("/users/{userId}/goals/{goalId}")
     public ResponseEntity<String> deleteGoal(@PathVariable Long userId,
                                              @PathVariable Long goalId) {
