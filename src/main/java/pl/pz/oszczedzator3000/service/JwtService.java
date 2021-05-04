@@ -11,13 +11,13 @@ import pl.pz.oszczedzator3000.config.JwtTokenProvider;
 import pl.pz.oszczedzator3000.dto.user.UserAuthenticationDto;
 
 @Service
-public class AccessService {
+public class JwtService {
 
     private AuthenticationManager authenticationManager;
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AccessService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    public JwtService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
     }

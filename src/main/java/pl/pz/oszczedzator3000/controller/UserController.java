@@ -10,22 +10,22 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.pz.oszczedzator3000.dto.exception.ExceptionDto;
 import pl.pz.oszczedzator3000.dto.jwt.JwtDto;
 import pl.pz.oszczedzator3000.dto.user.UserAuthenticationDto;
-import pl.pz.oszczedzator3000.service.AccessService;
+import pl.pz.oszczedzator3000.service.JwtService;
 
 @RestController
 @RequestMapping("api/v1")
-public class AccessController {
+public class UserController {
 
-    private AccessService accessService;
+    private JwtService jwtService;
 
     @Autowired
-    public AccessController(AccessService accessService) {
-        this.accessService = accessService;
+    public UserController(JwtService jwtService) {
+        this.jwtService = jwtService;
     }
 
     @PostMapping("login")
     public ResponseEntity<?> login(@RequestBody UserAuthenticationDto userAuthenticationDto) {
-        String token = accessService.authenticate(userAuthenticationDto);
+        String token = jwtService.authenticate(userAuthenticationDto);
         if (token.equals("Bad credentials")) {
             return new ResponseEntity<>(new ExceptionDto(token), HttpStatus.BAD_REQUEST);
         }
@@ -34,6 +34,6 @@ public class AccessController {
 
     @PostMapping("extend-token")
     public ResponseEntity<?> extendToken() {
-        return new ResponseEntity<>(new JwtDto(accessService.generateNewToken()), HttpStatus.OK);
+        return new ResponseEntity<>(new JwtDto(jwtService.generateNewToken()), HttpStatus.OK);
     }
 }
