@@ -5,7 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pz.oszczedzator3000.model.User;
-import pl.pz.oszczedzator3000.model.enums.Role;
+import pl.pz.oszczedzator3000.model.enums.AppRole;
 import pl.pz.oszczedzator3000.repository.RoleRepository;
 import pl.pz.oszczedzator3000.repository.UserRepository;
 
@@ -31,9 +31,9 @@ public class Runner implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        for (Role role : Role.values()) {
+        for (AppRole appRole : AppRole.values()) {
             pl.pz.oszczedzator3000.model.Role role1 = new pl.pz.oszczedzator3000.model.Role();
-            role1.setName("ROLE_" + role.name());
+            role1.setName("ROLE_" + appRole.name());
             roleRepository.save(role1);
         }
 

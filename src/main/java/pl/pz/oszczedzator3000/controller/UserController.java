@@ -9,31 +9,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.pz.oszczedzator3000.dto.exception.ExceptionDto;
 import pl.pz.oszczedzator3000.dto.jwt.JwtDto;
-import pl.pz.oszczedzator3000.dto.user.UserAuthenticationDto;
+import pl.pz.oszczedzator3000.dto.user.UserDto;
 import pl.pz.oszczedzator3000.service.JwtService;
+import pl.pz.oszczedzator3000.service.UserService;
 
 @RestController
 @RequestMapping("api/v1")
 public class UserController {
 
     private JwtService jwtService;
+    private UserService userService;
 
     @Autowired
-    public UserController(JwtService jwtService) {
+    public UserController(JwtService jwtService, UserService userService) {
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @PostMapping("login")
-    public ResponseEntity<?> login(@RequestBody UserAuthenticationDto userAuthenticationDto) {
-        String token = jwtService.authenticate(userAuthenticationDto);
+    public ResponseEntity<?> login(@RequestBody UserDto userDto) {
+        String token = jwtService.authenticate(userDto);
         if (token.equals("Bad credentials")) {
             return new ResponseEntity<>(new ExceptionDto(token), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(new JwtDto(token), HttpStatus.OK);
     }
 
-    @PostMapping("extend-token")
+    @PostMapping("token-extension")
     public ResponseEntity<?> extendToken() {
         return new ResponseEntity<>(new JwtDto(jwtService.generateNewToken()), HttpStatus.OK);
+    }
+
+    @PostMapping("register")
+    public ResponseEntity<?> register(@RequestBody UserDto userDto) {
+        userService.register(userDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

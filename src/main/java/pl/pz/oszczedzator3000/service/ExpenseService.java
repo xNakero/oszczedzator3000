@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseFilterRequestDto;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseRequestDto;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseResponseDto;
@@ -18,7 +19,6 @@ import pl.pz.oszczedzator3000.model.User;
 import pl.pz.oszczedzator3000.repository.ExpenseRepository;
 import pl.pz.oszczedzator3000.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

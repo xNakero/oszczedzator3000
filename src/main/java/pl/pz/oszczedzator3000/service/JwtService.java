@@ -8,7 +8,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pl.pz.oszczedzator3000.config.JwtTokenProvider;
-import pl.pz.oszczedzator3000.dto.user.UserAuthenticationDto;
+import pl.pz.oszczedzator3000.dto.user.UserDto;
 
 @Service
 public class JwtService {
@@ -22,7 +22,7 @@ public class JwtService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public String authenticate(UserAuthenticationDto userAuth) {
+    public String authenticate(UserDto userAuth) {
         Authentication usernamePasswordAuth = new UsernamePasswordAuthenticationToken(
                 userAuth.getUsername(),
                 userAuth.getPassword()
