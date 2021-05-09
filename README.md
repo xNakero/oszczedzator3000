@@ -44,6 +44,23 @@ Users database is integrated with spring security context. It is possible to log
 
 # How to run it?
 
+ Firstly you have to download the repository
+
+```cmd
+git clone https://github.com/xNakero/oszczedzator3000-backend.git
+ ```
+
+You can run the application in the terminal. To do it you need [maven](https://maven.apache.org/install.html).
+
+In order run run the application go to project directory with the project using
+```cmd
+cd github-repository-analyser
+```
+Then you can run the app using 
+
+```
+mvn spring-boot:run
+```
 # How to use this API?
 
 * Application by default uses port 8080, to change it edit ``application.properties`` by adding line ``server.port=n`` where n is chosen port. 
