@@ -1,4 +1,4 @@
-# Oszczedzator3000 - Beckend
+# Oszczedzator3000 - Backend
 
 # Table of contents 
 * [About the project](#about-the-project)
@@ -7,6 +7,7 @@
 * [How to run it?](#how-to-run-it?)
 * [How to use this API](#how-to-use-this-api?)
     * [Expense](#expense)
+    * [Goal](#goal)
     * [User Personal Details](#user-personal-details)
     * [Goal Analyser](#goal-analyser)
     * [Expense Optimiser](#expense-optimiser)
@@ -130,6 +131,89 @@ api/v1/api/users/{user_id}/expenses/{expense_id}
 * ``expense`` - unique id of an expense
 User can delete only his/her expenses. 
 
+## Goal
+Goals are accessible only for the users that owns them. Users can get, post, put or delete their goals. User can get all of his/her goals or filter them.
+
+### Data Transfer Objects
+#### Goal request with filters
+```
+{
+    "category": string,
+}
+```
+* ``category`` - one of categories, that are available at the endpoint ``/api/v1/enums/category``
+
+#### Request with goal data
+```
+{
+    "category": string,
+    "name": string,
+    "price": double,
+    "target_date": YYYY-MM-DD
+}
+```
+* ``category`` - one of categories, that are available at the endpoint ``/api/v1/enums/category``
+* ``name`` - name of the goal
+* ``price`` - value of goal that user what to achieve
+* ``target_date`` - date when the user what to achieve the goal
+
+#### Goal Response
+```
+{
+    "category": string,
+    "name": string,
+    "price": double,
+    "target_date": YYYY-MM-DD,
+    "goal_id": long
+}
+```
+All of properties are the same as in [Request with goal data](#request-with-goal-data) with one addition
+
+``goal_id`` - unique id of a goal
+
+### Methods
+
+All requests but POST and DELETE return one or more [Goal response](#goal-response).
+
+#### GET all goals
+```
+api/v1/users/{user_id}/goals
+```
+
+``user_id`` - unique id of the user
+There are also optional parameters
+* ``page`` - id of page, starting from 0, default is 0
+* ``size`` - size of page, 10 by default
+
+#### GET filtered goals
+```
+api/v1/users/{user_id}/goals/filtered
+```
+This request has the same optional parameters as unfiltered one, however it accept a request body. This body is [Request with filters](#goal-request-with-filters)
+
+#### POST goal
+```
+api/v1/users/{user_id}/goals
+```
+``user_id`` - unique id of the user
+This request accepts [Request with goal data](#request-with-goal-data) as request body. Goal can be posted only if every 
+property is filled. 
+
+#### PUT goal
+```
+api/users/{user_id}/goals/{goal_id}
+```
+* ``user_id`` - unique id of the user
+* ``goal_id`` - unique id of an goal
+This request accepts [Request with goal data](#request-with-goal-data) as request body. Fill only properties that you want to have updated. User can update only his goals. 
+
+#### DELETE goal
+```
+api/v1/api/users/{user_id}/goals/{goal_id}
+```
+* ``user_id`` - unique id of the user
+* ``goal_id`` - unique id of an goal
+User can delete only his/her goals. 
 
 ## User Personal Details
 ### Data Transfer Objects
