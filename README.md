@@ -3,9 +3,11 @@
 # Table of contents 
 * [About the project](#about-the-project)
 * [Current state of the project](#current-state-of-the-project)
+* [Plans for the future](#plans-for-the-future)
 * [Technologies used](#technologies-used)
 * [How to run it?](#how-to-run-it?)
 * [How to use this API](#how-to-use-this-api?)
+    * [Registration and login](#registration-and-login)
     * [Expense](#expense)
     * [Goal](#goal)
     * [User Personal Details](#user-personal-details)
@@ -18,24 +20,80 @@ Oszczedzator3000 is a web application that allows people to see where they make 
 This is only backend part of the project, frontend can be found there. Work is still in progress. This is also a college related project for one of the courses.
 
 # Current state of the project
-Currently project has implemented REST api with all the endpoints for dataaccess user related. Project is also connected to H2 database with PostgreSQL ready to be connected in the future.
+Currently project has implemented REST api with all the endpoints for dataaccess user related. Project is also connected to H2 database with PostgreSQL ready to be connected in the future. 
+
+Users database is integrated with spring security context. It is possible to login to API with JWT, extend JWT duration and register. JWT is not yet fully finished. Only logged in users can read the api, and also they need to be authorised to see data. Plans for the future are specified below.
+
+# Plans for the future
+* Login and registration data validation
+* Email verification after creating account
+* Redis JWT storage for each user
+* Logout from all accounts
+* Password change
+* Admin API
 
 # Technologies used
 * Java 11
 * Spring Boot 2.4.4
 * H2 Database 
 * Spring Data JPA
-* Spring Security 
+* Spring Security
 * Map Struct 1.4.2
 * Lombok 1.18.18
+* JJWT 0.9.1
 
 # How to run it?
 
 # How to use this API?
 
-Application by default uses port 8080, to change it edit ``application.properties`` by adding line ``server.port=n`` where n is chosen port. 
+* Application by default uses port 8080, to change it edit ``application.properties`` by adding line ``server.port=n`` where n is chosen port. 
+* Values of the json properties in documentation are types that have to be provided to receive 2xx response status. 
+* Application requires JWT token in order to access resources
 
-Values of the json properties in documentation are types that have to be provided to receive 2xx response status. 
+
+## Registration and login
+### Data Transfer Objects
+#### User
+```
+{
+    "username": string,
+    "password": string
+}
+
+```
+* ``username`` - username of the user, it has to be an email address
+* ``password`` - password of the user
+
+#### Jwt 
+```
+{
+    "token": string
+}
+```
+* ``token`` - JWT token, valid for 24 hours
+
+### Methods
+#### Register - POST method
+In order to register in the oszczedzator3000 API you have to go to the endpoint
+```
+/api/v1/register
+```
+This endpoint requires [User](#user) as request body. If the user was successfully register the application returns 201 HTTP status code, otherwise it returns 409 code. 
+
+#### Login - POST method
+To obtain JWT token user has to login to API. To login you have to go to the endpoint
+```
+/api/v1/login
+```
+This endpoint requires [User](#user) as request body. If login was successful it returns [Jwt](#jwt) as a response.
+
+#### Extend token duration - POST method
+The token is not infinite. At some point in order to not logout user from a website that uses API the token has to be extended. It can be done by sending a request to the endpoint
+```
+/api/v1/token-extension
+```
+This endpoint returns [Jwt](#jwt) as the response only when the authorization token is valid or not expired.
+
 
 ## Expense
 Expenses are accessible only for the users that owns them. Users can get, post, put or delete their expenses. User can get all of his/her expenses or filter them.
@@ -93,7 +151,7 @@ All requests but POST and DELETE return one or more [Expense response](#expense-
 
 #### GET all expenses
 ```
-api/v1/users/{user_id}/expenses
+/api/v1/users/{user_id}/expenses
 ```
 
 ``user_id`` - unique id of the user
@@ -103,13 +161,13 @@ There are also optional parameters
 
 #### GET filtered expenses
 ```
-api/v1/users/{user_id}/expenses/filtered
+/api/v1/users/{user_id}/expenses/filtered
 ```
 This request has the same optional parameters as unfiltered one, however it accept a request body. This body is [Request with filters](#request-with-filters)
 
 #### POST expense
 ```
-api/v1/users/{user_id}/expenses
+/api/v1/users/{user_id}/expenses
 ```
 ``user_id`` - unique id of the user
 This request accepts [Request with expense data](#request-with-expense-data) as request body. Expense can be posted only if every 
@@ -117,7 +175,7 @@ property is filled.
 
 #### PUT expense
 ```
-api//users/{user_id}/expenses/{expense_id}
+/api//users/{user_id}/expenses/{expense_id}
 ```
 * ``user_id`` - unique id of the user
 * ``expense`` - unique id of an expense
@@ -125,7 +183,7 @@ This request accepts [Request with expense data](#request-with-expense-data) as 
 
 #### DELETE expense
 ```
-api/v1/api/users/{user_id}/expenses/{expense_id}
+/api/v1/api/users/{user_id}/expenses/{expense_id}
 ```
 * ``user_id`` - unique id of the user
 * ``expense`` - unique id of an expense
@@ -177,7 +235,7 @@ All requests but POST and DELETE return one or more [Goal response](#goal-respon
 
 #### GET all goals
 ```
-api/v1/users/{user_id}/goals
+/api/v1/users/{user_id}/goals
 ```
 
 ``user_id`` - unique id of the user
@@ -187,13 +245,13 @@ There are also optional parameters
 
 #### GET filtered goals
 ```
-api/v1/users/{user_id}/goals/filtered
+/api/v1/users/{user_id}/goals/filtered
 ```
 This request has the same optional parameters as unfiltered one, however it accept a request body. This body is [Request with filters](#goal-request-with-filters)
 
 #### POST goal
 ```
-api/v1/users/{user_id}/goals
+/api/v1/users/{user_id}/goals
 ```
 ``user_id`` - unique id of the user
 This request accepts [Request with goal data](#request-with-goal-data) as request body. Goal can be posted only if every 
@@ -201,7 +259,7 @@ property is filled.
 
 #### PUT goal
 ```
-api/users/{user_id}/goals/{goal_id}
+/api/v1/users/{user_id}/goals/{goal_id}
 ```
 * ``user_id`` - unique id of the user
 * ``goal_id`` - unique id of an goal
@@ -209,7 +267,7 @@ This request accepts [Request with goal data](#request-with-goal-data) as reques
 
 #### DELETE goal
 ```
-api/v1/api/users/{user_id}/goals/{goal_id}
+/api/v1/users/{user_id}/goals/{goal_id}
 ```
 * ``user_id`` - unique id of the user
 * ``goal_id`` - unique id of an goal
@@ -243,7 +301,7 @@ There are availible 3 HTTP methods - GET, POST, PUT. User can only delete his pe
 
 All methods are available at the endpoint
 ```
-api/v1/users/{user_id}/details
+/api/v1/users/{user_id}/details
 ```
 ``user_id`` - unique id of a user
 
@@ -358,7 +416,7 @@ Response has two arrays:
 ### Methods
 There is only one HTTP method - GET. It can be reached at the endpoint
 ```
-api/v1/users/{user_id}/optimiser
+/api/v1/users/{user_id}/optimiser
 ```
 ``user_id`` - unique id of a user that requests optimiser use. 
 This request accepts [Filtration Expense Optimiser Request](#filtration-expense-optimiser-request) as request body and returns as a response [Expense Optimiser Response](#expense-optimiser-response).
