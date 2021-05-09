@@ -112,6 +112,14 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>pl.pz.oszczedzator3000.Oszczedzator3000Application</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
