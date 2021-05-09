@@ -5,8 +5,8 @@
 * [Current state of the project](#current-state-of-the-project)
 * [Plans for the future](#plans-for-the-future)
 * [Technologies used](#technologies-used)
-* [How to run it?](#how-to-run-it?)
-* [How to use this API](#how-to-use-this-api?)
+* [How to run it?](#how-to-run-it)
+* [How to use this API?](#how-to-use-this-api)
     * [Registration and login](#registration-and-login)
     * [Expense](#expense)
     * [Goal](#goal)
@@ -59,7 +59,6 @@ Users database is integrated with spring security context. It is possible to log
     "username": string,
     "password": string
 }
-
 ```
 * ``username`` - username of the user, it has to be an email address
 * ``password`` - password of the user
