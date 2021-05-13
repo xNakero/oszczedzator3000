@@ -170,7 +170,6 @@ All requests but POST and DELETE return one or more [Expense response](#expense-
 /api/v1/expenses
 ```
 
-``user_id`` - unique id of the user
 There are also optional parameters
 * ``page`` - id of page, starting from 0, default is 0
 * ``size`` - size of page, 10 by default
@@ -185,7 +184,6 @@ This request has the same optional parameters as unfiltered one, however it acce
 ```
 /api/v1/expenses
 ```
-``user_id`` - unique id of the user
 This request accepts [Request with expense data](#request-with-expense-data) as request body. Expense can be posted only if every 
 property is filled. 
 
@@ -193,7 +191,6 @@ property is filled.
 ```
 /api/v1/expenses/{expense_id}
 ```
-* ``user_id`` - unique id of the user
 * ``expense`` - unique id of an expense
 This request accepts [Request with expense data](#request-with-expense-data) as request body. Fill only properties that you want to have updated. User can update only his expenses. 
 
@@ -201,7 +198,6 @@ This request accepts [Request with expense data](#request-with-expense-data) as 
 ```
 /api/v1/expenses/{expense_id}
 ```
-* ``user_id`` - unique id of the user
 * ``expense`` - unique id of an expense
 User can delete only his/her expenses. 
 
@@ -254,7 +250,6 @@ All requests but POST and DELETE return one or more [Goal response](#goal-respon
 /api/v1/goals
 ```
 
-``user_id`` - unique id of the user
 There are also optional parameters
 * ``page`` - id of page, starting from 0, default is 0
 * ``size`` - size of page, 10 by default
@@ -269,7 +264,6 @@ This request has the same optional parameters as unfiltered one, however it acce
 ```
 /api/v1/goals
 ```
-``user_id`` - unique id of the user
 This request accepts [Request with goal data](#request-with-goal-data) as request body. Goal can be posted only if every 
 property is filled. 
 
@@ -277,7 +271,6 @@ property is filled.
 ```
 /api/v1/goals/{goal_id}
 ```
-* ``user_id`` - unique id of the user
 * ``goal_id`` - unique id of an goal
 This request accepts [Request with goal data](#request-with-goal-data) as request body. Fill only properties that you want to have updated. User can update only his goals. 
 
@@ -285,7 +278,6 @@ This request accepts [Request with goal data](#request-with-goal-data) as reques
 ```
 /api/v1/goals/{goal_id}
 ```
-* ``user_id`` - unique id of the user
 * ``goal_id`` - unique id of an goal
 User can delete only his/her goals. 
 
@@ -319,7 +311,6 @@ All methods are available at the endpoint
 ```
 /api/v1/details
 ```
-``user_id`` - unique id of a user
 
 #### GET user personal details
 Simply returns personal details of a user.
@@ -367,7 +358,6 @@ Goal Analyser has only one HTTP method - GET. It can be reached at the endpoint
 ```
 /api/v1/goals/{goal_id}/analyser
 ```
-* ``user_id`` - unique id of a user
 * ``goal_id`` - unique id of a goal, user can access only his goals
 
 This request accepts [Goal Analyser Request](#goal-analyser-request) as request body and returns [Goal Analyser Reponse](#goal-analyser-response) as response.
@@ -434,5 +424,4 @@ There is only one HTTP method - GET. It can be reached at the endpoint
 ```
 /api/v1/optimiser
 ```
-``user_id`` - unique id of a user that requests optimiser use. 
 This request accepts [Filtration Expense Optimiser Request](#filtration-expense-optimiser-request) as request body and returns as a response [Expense Optimiser Response](#expense-optimiser-response).
