@@ -27,7 +27,7 @@ Users database is integrated with spring security context. It is possible to log
 # Plans for the future
 * Login and registration data validation
 * Email verification after creating account
-* Redis JWT storage for each user
+* Redis JWT Secret storage for each user
 * Logout from all accounts
 * Password change
 * Admin API
@@ -167,7 +167,7 @@ All requests but POST and DELETE return one or more [Expense response](#expense-
 
 #### GET all expenses
 ```
-/api/v1/users/{user_id}/expenses
+/api/v1/expenses
 ```
 
 ``user_id`` - unique id of the user
@@ -177,13 +177,13 @@ There are also optional parameters
 
 #### GET filtered expenses
 ```
-/api/v1/users/{user_id}/expenses/filtered
+/api/v1/expenses/filtered
 ```
 This request has the same optional parameters as unfiltered one, however it accept a request body. This body is [Request with filters](#request-with-filters)
 
 #### POST expense
 ```
-/api/v1/users/{user_id}/expenses
+/api/v1/expenses
 ```
 ``user_id`` - unique id of the user
 This request accepts [Request with expense data](#request-with-expense-data) as request body. Expense can be posted only if every 
@@ -191,7 +191,7 @@ property is filled.
 
 #### PUT expense
 ```
-/api//users/{user_id}/expenses/{expense_id}
+/api/v1/expenses/{expense_id}
 ```
 * ``user_id`` - unique id of the user
 * ``expense`` - unique id of an expense
@@ -199,7 +199,7 @@ This request accepts [Request with expense data](#request-with-expense-data) as 
 
 #### DELETE expense
 ```
-/api/v1/api/users/{user_id}/expenses/{expense_id}
+/api/v1/expenses/{expense_id}
 ```
 * ``user_id`` - unique id of the user
 * ``expense`` - unique id of an expense
@@ -251,7 +251,7 @@ All requests but POST and DELETE return one or more [Goal response](#goal-respon
 
 #### GET all goals
 ```
-/api/v1/users/{user_id}/goals
+/api/v1/goals
 ```
 
 ``user_id`` - unique id of the user
@@ -261,13 +261,13 @@ There are also optional parameters
 
 #### GET filtered goals
 ```
-/api/v1/users/{user_id}/goals/filtered
+/api/v1/goals/filtered
 ```
 This request has the same optional parameters as unfiltered one, however it accept a request body. This body is [Request with filters](#goal-request-with-filters)
 
 #### POST goal
 ```
-/api/v1/users/{user_id}/goals
+/api/v1/goals
 ```
 ``user_id`` - unique id of the user
 This request accepts [Request with goal data](#request-with-goal-data) as request body. Goal can be posted only if every 
@@ -275,7 +275,7 @@ property is filled.
 
 #### PUT goal
 ```
-/api/v1/users/{user_id}/goals/{goal_id}
+/api/v1/goals/{goal_id}
 ```
 * ``user_id`` - unique id of the user
 * ``goal_id`` - unique id of an goal
@@ -283,7 +283,7 @@ This request accepts [Request with goal data](#request-with-goal-data) as reques
 
 #### DELETE goal
 ```
-/api/v1/users/{user_id}/goals/{goal_id}
+/api/v1/goals/{goal_id}
 ```
 * ``user_id`` - unique id of the user
 * ``goal_id`` - unique id of an goal
@@ -317,7 +317,7 @@ There are availible 3 HTTP methods - GET, POST, PUT. User can only delete his pe
 
 All methods are available at the endpoint
 ```
-/api/v1/users/{user_id}/details
+/api/v1/details
 ```
 ``user_id`` - unique id of a user
 
@@ -365,7 +365,7 @@ Goal Analyser analyses whether user can afford a goal based on his expenses in c
 ### Methods 
 Goal Analyser has only one HTTP method - GET. It can be reached at the endpoint
 ```
-/api/v1/user/{user_id}/goal/{goal_id}/analyser
+/api/v1/goals/{goal_id}/analyser
 ```
 * ``user_id`` - unique id of a user
 * ``goal_id`` - unique id of a goal, user can access only his goals
@@ -432,7 +432,7 @@ Response has two arrays:
 ### Methods
 There is only one HTTP method - GET. It can be reached at the endpoint
 ```
-/api/v1/users/{user_id}/optimiser
+/api/v1/optimiser
 ```
 ``user_id`` - unique id of a user that requests optimiser use. 
 This request accepts [Filtration Expense Optimiser Request](#filtration-expense-optimiser-request) as request body and returns as a response [Expense Optimiser Response](#expense-optimiser-response).
