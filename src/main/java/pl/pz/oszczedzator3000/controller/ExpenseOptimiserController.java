@@ -13,19 +13,17 @@ import pl.pz.oszczedzator3000.service.ExpenseOptimiserService;
 @RequestMapping("api/v1")
 public class ExpenseOptimiserController {
 
-    private ExpenseOptimiserService expenseOptimiserService;
+    private final ExpenseOptimiserService expenseOptimiserService;
 
     @Autowired
     public ExpenseOptimiserController(ExpenseOptimiserService expenseOptimiserService) {
         this.expenseOptimiserService = expenseOptimiserService;
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @GetMapping("users/{userId}/optimiser")
-    public ResponseEntity<ExpenseOptimiserResponseDto> getOptimiserResults(@PathVariable Long userId,
-                                                                           @RequestBody FiltrationExpenseOptimiserRequestDto filtrationExpenseOptimiserRequestDto) {
+    @GetMapping("optimiser")
+    public ResponseEntity<ExpenseOptimiserResponseDto> getOptimiserResults(@RequestBody FiltrationExpenseOptimiserRequestDto filtrationExpenseOptimiserRequestDto) {
         return new ResponseEntity<>(
-                expenseOptimiserService.getOptimiserResults(userId, filtrationExpenseOptimiserRequestDto),
+                expenseOptimiserService.getOptimiserResults(filtrationExpenseOptimiserRequestDto),
                 HttpStatus.OK);
     }
 }

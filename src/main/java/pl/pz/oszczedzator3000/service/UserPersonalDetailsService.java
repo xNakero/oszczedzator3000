@@ -17,9 +17,9 @@ import java.util.Optional;
 @Service
 public class UserPersonalDetailsService {
 
-    private UserPersonalDetailsRepository userPersonalDetailsRepository;
-    private UserRepository userRepository;
-    private UserPersonalDetailsMapper userPersonalDetailsMapper;
+    private final UserPersonalDetailsRepository userPersonalDetailsRepository;
+    private final UserRepository userRepository;
+    private final UserPersonalDetailsMapper userPersonalDetailsMapper;
 
     @Autowired
     public UserPersonalDetailsService(UserPersonalDetailsRepository userPersonalDetailsRepository,
@@ -33,7 +33,7 @@ public class UserPersonalDetailsService {
     public UserPersonalDetailsDto getUserPersonalDetails(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findById(userId)
-                .orElseThrow(() -> new UserPersonalDetailsNotFoundException(userId));
+                .orElseThrow(UserPersonalDetailsNotFoundException::new);
         return userPersonalDetailsMapper.mapToUserPersonalDetailsDto(userPersonalDetails);
     }
 
@@ -58,7 +58,7 @@ public class UserPersonalDetailsService {
             UserPersonalDetailsDto userPersonalDetailsDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findById(userId)
-                .orElseThrow(() -> new UserPersonalDetailsNotFoundException(userId));
+                .orElseThrow(UserPersonalDetailsNotFoundException::new);
         if (userPersonalDetailsDto.getAge() >= 18) {
             userPersonalDetails.setAge(userPersonalDetailsDto.getAge());
         }

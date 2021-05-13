@@ -14,6 +14,7 @@ import pl.pz.oszczedzator3000.dto.expense.ExpenseRequestDto;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseResponseDto;
 import pl.pz.oszczedzator3000.exceptions.expense.ExpenseNotFoundException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
+import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.mapper.ExpenseMapper;
 import pl.pz.oszczedzator3000.model.Expense;
 import pl.pz.oszczedzator3000.model.User;
@@ -42,7 +43,8 @@ public class ExpenseService {
 
     public Page<ExpenseResponseDto> getUserExpensePage(int page, int size) {
         User user = getUserPrincipal();
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("date").descending());
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("date")
+                .descending());
         return expenseRepository.findAllByUser(user, pageRequest)
                 .map(expenseMapper::mapToExpenseResponseDto);
     }
@@ -130,7 +132,10 @@ public class ExpenseService {
     }
 
     private User getUserPrincipal() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
     }
 }

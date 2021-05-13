@@ -2,6 +2,8 @@ package pl.pz.oszczedzator3000.service;
 
 import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.dto.expenseoptimiser.ExpenseOptimiserResponseDto;
@@ -28,8 +30,8 @@ import java.util.stream.Collectors;
 @Service
 public class ExpenseOptimiserService {
 
-    private UserRepository userRepository;
-    private UserPersonalDetailsRepository userPersonalDetailsRepository;
+    private final UserRepository userRepository;
+    private final UserPersonalDetailsRepository userPersonalDetailsRepository;
 
     @Autowired
     public ExpenseOptimiserService(UserRepository userRepository,
@@ -40,11 +42,12 @@ public class ExpenseOptimiserService {
     }
 
     @Transactional
-    public ExpenseOptimiserResponseDto getOptimiserResults(Long userId,
-                                                           FiltrationExpenseOptimiserRequestDto filtrationExpenseOptimiserRequestDto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findById(userId)
-                .orElseThrow(() -> new UserPersonalDetailsNotFoundException(userId));
+    public ExpenseOptimiserResponseDto getOptimiserResults(FiltrationExpenseOptimiserRequestDto filtrationExpenseOptimiserRequestDto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
+        UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findByUser(user)
+                .orElseThrow(UserPersonalDetailsNotFoundException::new);
         if (filtrationExpenseOptimiserRequestDto.getCategories() == null) {
             throw new NoCategoriesException();
         }
