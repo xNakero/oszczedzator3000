@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseFilterRequestDto;
@@ -12,7 +14,6 @@ import pl.pz.oszczedzator3000.dto.expense.ExpenseRequestDto;
 import pl.pz.oszczedzator3000.dto.expense.ExpenseResponseDto;
 import pl.pz.oszczedzator3000.exceptions.expense.ExpenseNotFoundException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
-import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.mapper.ExpenseMapper;
 import pl.pz.oszczedzator3000.model.Expense;
 import pl.pz.oszczedzator3000.model.User;
@@ -27,9 +28,9 @@ import java.util.stream.Collectors;
 @Service
 public class ExpenseService {
 
-    private ExpenseRepository expenseRepository;
-    private UserRepository userRepository;
-    private ExpenseMapper expenseMapper;
+    private final ExpenseRepository expenseRepository;
+    private final UserRepository userRepository;
+    private final ExpenseMapper expenseMapper;
 
     @Autowired
     public ExpenseService(ExpenseRepository expenseRepository, UserRepository userRepository,
@@ -39,28 +40,21 @@ public class ExpenseService {
         this.expenseMapper = expenseMapper;
     }
 
-    public Page<ExpenseResponseDto> getUserExpensePage(Long userId, int page, int size) {
-        Optional<User> user = userRepository.findById(userId);
+    public Page<ExpenseResponseDto> getUserExpensePage(int page, int size) {
+        User user = getUserPrincipal();
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("date").descending());
-        if (user.isPresent()) {
-            return expenseRepository.findAllByUser(user.get(), pageRequest).map(expenseMapper::mapToExpenseResponseDto);
-        } else {
-            throw new UserNotFoundException(userId);
-        }
+        return expenseRepository.findAllByUser(user, pageRequest)
+                .map(expenseMapper::mapToExpenseResponseDto);
     }
 
     @Transactional
-    public Page<ExpenseResponseDto> getUserExpensePageFiltered(Long userId,
-                                                               int page,
+    public Page<ExpenseResponseDto> getUserExpensePageFiltered(int page,
                                                                int size,
                                                                ExpenseFilterRequestDto expenseFilterRequestDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(userId);
-        }
+        User user = getUserPrincipal();
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("date").descending());
 
-        List<ExpenseResponseDto> list = expenseRepository.streamAllByUser(user.get())
+        List<ExpenseResponseDto> list = expenseRepository.streamAllByUser(user)
                 .filter(expense -> expenseFilterRequestDto.getName() == null ||
                         expenseFilterRequestDto.getName().equals(expense.getName()))
                 .filter(expense -> expenseFilterRequestDto.getCategory() == null ||
@@ -83,21 +77,18 @@ public class ExpenseService {
             endIndex = list.size();
         }
 
-        for(int i = startIndex; i < endIndex; i++) {
+        for (int i = startIndex; i < endIndex; i++) {
             pageToReturn.add(list.get(i));
         }
 
         return new PageImpl<>(pageToReturn, pageRequest, list.size());
     }
 
-
-    public Optional<Expense> postExpense(Long userId, ExpenseRequestDto expenseRequestDto) {
-        Optional<User> user = userRepository.findById(userId);
+    public Optional<Expense> postExpense(ExpenseRequestDto expenseRequestDto) {
+        User user = getUserPrincipal();
         Expense expense = expenseMapper.mapToExpense(expenseRequestDto);
-        if(user.isEmpty()) {
-            throw new UserNotFoundException(userId);
-        } else if (!expenseRequestDto.hasInvalidAttributes()) {
-            expense.setUser(user.get());
+        if (!expenseRequestDto.hasInvalidAttributes()) {
+            expense.setUser(user);
             expenseRepository.save(expense);
             return Optional.of(expense);
         } else {
@@ -106,19 +97,13 @@ public class ExpenseService {
     }
 
     @Transactional
-    public ExpenseResponseDto updateExpense(Long userId, Long expenseId, ExpenseRequestDto expenseRequestDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(userId);
+    public ExpenseResponseDto updateExpense(Long expenseId, ExpenseRequestDto expenseRequestDto) {
+        User user = getUserPrincipal();
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new ExpenseNotFoundException(expenseId));
+        if (!user.getExpenses().contains(expense)) {
+            throw new UserNotAllowedException();
         }
-        Optional<Expense> expenseOptional = expenseRepository.findById(expenseId);
-        if (expenseOptional.isEmpty()) {
-            throw new ExpenseNotFoundException(expenseId);
-        }
-        if(!user.get().getExpenses().contains(expenseOptional.get())){
-            throw new UserNotAllowedException(userId);
-        }
-        Expense expense = expenseOptional.get();
         if (expenseRequestDto.getCategory() != null) {
             expense.setCategory(expenseRequestDto.getCategory());
         }
@@ -134,18 +119,18 @@ public class ExpenseService {
         return expenseMapper.mapToExpenseResponseDto(expense);
     }
 
-    public void deleteExpense(Long userId, Long expenseId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(userId);
+    public void deleteExpense(Long expenseId) {
+        User user = getUserPrincipal();
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() ->new ExpenseNotFoundException(expenseId));
+        if (!user.getExpenses().contains(expense)) {
+            throw new UserNotAllowedException();
         }
-        Optional<Expense> expenseOptional = expenseRepository.findById(expenseId);
-        if (expenseOptional.isEmpty()) {
-            throw new ExpenseNotFoundException(expenseId);
-        }
-        if(!user.get().getExpenses().contains(expenseOptional.get())){
-            throw new UserNotAllowedException(userId);
-        }
-        expenseRepository.delete(expenseOptional.get());
+        expenseRepository.delete(expense);
+    }
+
+    private User getUserPrincipal() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }

@@ -24,37 +24,32 @@ import java.util.Optional;
 @RequestMapping("/api/v1")
 public class ExpenseController {
 
-    private ExpenseService expenseService;
+    private final ExpenseService expenseService;
 
     @Autowired
     public ExpenseController(ExpenseService expenseService) {
         this.expenseService = expenseService;
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @GetMapping("users/{userId}/expenses")
-    public ResponseEntity<Page<ExpenseResponseDto>> getUsersExpensePage(@PathVariable Long userId,
-                                                                        @RequestParam(value = "page", defaultValue = "0") int page,
+
+    @GetMapping("expenses")
+    public ResponseEntity<Page<ExpenseResponseDto>> getUsersExpensePage(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                         @RequestParam(value = "size", defaultValue = "10") int size) {
-        Page<ExpenseResponseDto> expenses = expenseService.getUserExpensePage(userId, page, size);
+        Page<ExpenseResponseDto> expenses = expenseService.getUserExpensePage(page, size);
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @GetMapping("users/{userId}/expenses/filtered")
-    public ResponseEntity<Page<ExpenseResponseDto>> getExpensesFiltered(@PathVariable Long userId,
-                                                                        @RequestParam(value = "page", defaultValue = "0") int page,
+    @GetMapping("expenses/filtered")
+    public ResponseEntity<Page<ExpenseResponseDto>> getExpensesFiltered(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                         @RequestParam(value = "size", defaultValue = "10") int size,
                                                                         @RequestBody(required = false) ExpenseFilterRequestDto expenseFilterRequestDto) {
-        return new ResponseEntity<>(expenseService.getUserExpensePageFiltered(userId,
-                page, size, expenseFilterRequestDto) ,HttpStatus.OK);
+        return new ResponseEntity<>(
+                expenseService.getUserExpensePageFiltered(page, size, expenseFilterRequestDto) ,HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @PostMapping("/users/{userId}/expenses")
-    public ResponseEntity<String> postExpense(@PathVariable Long userId,
-                                              @RequestBody ExpenseRequestDto expenseRequestDto) {
-        Optional<Expense> e = expenseService.postExpense(userId, expenseRequestDto);
+    @PostMapping("expenses")
+    public ResponseEntity<String> postExpense(@RequestBody ExpenseRequestDto expenseRequestDto) {
+        Optional<Expense> e = expenseService.postExpense(expenseRequestDto);
         if (e.isPresent()) {
             return new ResponseEntity<>("Expense was created", HttpStatus.CREATED);
         } else {
@@ -62,20 +57,17 @@ public class ExpenseController {
         }
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @PutMapping("/users/{userId}/expenses/{expenseId}")
-    public ResponseEntity<ExpenseResponseDto> updateExpense(@PathVariable Long userId,
-                                                 @PathVariable Long expenseId,
+
+    @PutMapping("expenses/{expenseId}")
+    public ResponseEntity<ExpenseResponseDto> updateExpense(@PathVariable Long expenseId,
                                                  @RequestBody ExpenseRequestDto expenseRequestDto) {
-        return new ResponseEntity<>(expenseService.updateExpense(userId, expenseId, expenseRequestDto),
+        return new ResponseEntity<>(expenseService.updateExpense(expenseId, expenseRequestDto),
                 HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @DeleteMapping("/users/{userId}/expenses/{expenseId}")
-    public ResponseEntity<String> deleteExpense(@PathVariable Long userId,
-                                                 @PathVariable Long expenseId) {
-        expenseService.deleteExpense(userId, expenseId);
+    @DeleteMapping("expenses/{expenseId}")
+    public ResponseEntity<String> deleteExpense(@PathVariable Long expenseId) {
+        expenseService.deleteExpense(expenseId);
         return new ResponseEntity<>("Expense was deleted", HttpStatus.OK);
     }
 

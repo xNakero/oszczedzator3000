@@ -114,7 +114,7 @@ public class GoalService {
             throw new GoalNotFoundException(goalId);
         }
         if(!user.get().getGoals().contains(goalOptional.get())){
-            throw new UserNotAllowedException(userId);
+            throw new UserNotAllowedException();
         }
         Goal goal = goalOptional.get();
         if (goalRequestDto.getCategory() != null) {
@@ -142,7 +142,7 @@ public class GoalService {
             throw new GoalNotFoundException(goalId);
         }
         if(!user.get().getGoals().contains(goalOptional.get())){
-            throw new UserNotAllowedException(userId);
+            throw new UserNotAllowedException();
         }
         goalRepository.delete(goalOptional.get());
     }
