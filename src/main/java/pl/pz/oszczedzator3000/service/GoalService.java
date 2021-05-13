@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pz.oszczedzator3000.dto.goal.GoalFilterRequestDto;
@@ -28,9 +29,9 @@ import java.util.stream.Collectors;
 @Service
 public class GoalService {
 
-    private GoalRepository goalRepository;
-    private UserRepository userRepository;
-    private GoalMapper goalMapper;
+    private final GoalRepository goalRepository;
+    private final UserRepository userRepository;
+    private final GoalMapper goalMapper;
 
     @Autowired
     public GoalService(GoalRepository goalRepository, UserRepository userRepository, GoalMapper goalMapper) {
@@ -39,29 +40,22 @@ public class GoalService {
         this.goalMapper = goalMapper;
     }
 
-    public Page<GoalResponseDto> getUserGoalPage(Long userId, int page, int size) {
-        Optional<User> user = userRepository.findById(userId);
+    public Page<GoalResponseDto> getUserGoalPage(int page, int size) {
+        User user = getUserPrincipal();
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("targetDate").descending());
-        if (user.isPresent()) {
-            return goalRepository.findAllByUser(user.get(), pageRequest).map(goalMapper::mapToGoalResponseDto);
-        } else {
-            throw new UserNotFoundException(userId);
-        }
+        return goalRepository.findAllByUser(user, pageRequest).map(goalMapper::mapToGoalResponseDto);
     }
 
     @Transactional
-    public Page<GoalResponseDto> getUserGoalPageFiltered(Long userId,
-                                                               int page,
-                                                               int size,
-                                                               String name,
+    public Page<GoalResponseDto> getUserGoalPageFiltered(int page,
+                                                         int size,
+                                                         String name,
                                                          GoalFilterRequestDto goalFilterRequestDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(userId);
-        }
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("targetDate").descending());
+        User user = getUserPrincipal();
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("targetDate")
+                .descending());
 
-        List<GoalResponseDto> list = goalRepository.streamAllByUser(user.get())
+        List<GoalResponseDto> list = goalRepository.streamAllByUser(user)
                 .filter(expense -> name == null || name.equals(expense.getName()))
                 .filter(expense -> goalFilterRequestDto.getCategory() == null ||
                         expense.getCategory().equals(goalFilterRequestDto.getCategory()))
@@ -76,7 +70,7 @@ public class GoalService {
             endIndex = list.size();
         }
 
-        for(int i = startIndex; i < endIndex; i++) {
+        for (int i = startIndex; i < endIndex; i++) {
             pageToReturn.add(list.get(i));
         }
 
@@ -84,18 +78,14 @@ public class GoalService {
     }
 
     @Transactional
-    public Optional<Goal> postGoal(Long userId, GoalRequestDto goalRequestDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            if(goalRepository.streamAllByUser(user.get()).count() >= 10){
-                throw new UserHasTooManyGoalsException(userId);
-            }
-        } else {
-            throw new UserNotFoundException(userId);
+    public Optional<Goal> postGoal(GoalRequestDto goalRequestDto) {
+        User user = getUserPrincipal();
+        if (goalRepository.streamAllByUser(user).count() >= 10) {
+            throw new UserHasTooManyGoalsException();
         }
         if (!goalRequestDto.hasInvalidAttributes()) {
             Goal goal = goalMapper.mapToGoal(goalRequestDto);
-            goal.setUser(user.get());
+            goal.setUser(user);
             goalRepository.save(goal);
             return Optional.of(goal);
         } else {
@@ -104,19 +94,12 @@ public class GoalService {
     }
 
     @Transactional
-    public GoalResponseDto updateGoal(Long userId, Long goalId, GoalRequestDto goalRequestDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(userId);
-        }
-        Optional<Goal> goalOptional = goalRepository.findById(goalId);
-        if (goalOptional.isEmpty()) {
-            throw new GoalNotFoundException(goalId);
-        }
-        if(!user.get().getGoals().contains(goalOptional.get())){
+    public GoalResponseDto updateGoal(Long goalId, GoalRequestDto goalRequestDto) {
+        User user = getUserPrincipal();
+        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalNotFoundException(goalId));
+        if (!user.getGoals().contains(goal)) {
             throw new UserNotAllowedException();
         }
-        Goal goal = goalOptional.get();
         if (goalRequestDto.getCategory() != null) {
             goal.setCategory(goalRequestDto.getCategory());
         }
@@ -132,18 +115,20 @@ public class GoalService {
         return goalMapper.mapToGoalResponseDto(goal);
     }
 
-    public void deleteGoal(Long userId, Long goalId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(userId);
-        }
-        Optional<Goal> goalOptional = goalRepository.findById(goalId);
-        if (goalOptional.isEmpty()) {
-            throw new GoalNotFoundException(goalId);
-        }
-        if(!user.get().getGoals().contains(goalOptional.get())){
+    public void deleteGoal(Long goalId) {
+        User user = getUserPrincipal();
+        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalNotFoundException(goalId));
+        if (!user.getGoals().contains(goal)) {
             throw new UserNotAllowedException();
         }
-        goalRepository.delete(goalOptional.get());
+        goalRepository.delete(goal);
+    }
+
+    private User getUserPrincipal() {
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
     }
 }

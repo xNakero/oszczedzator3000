@@ -21,38 +21,32 @@ import java.util.Optional;
 @RequestMapping("/api/v1")
 public class GoalController {
 
-    private GoalService goalService;
+    private final GoalService goalService;
 
     @Autowired
     public GoalController(GoalService goalService) {
         this.goalService = goalService;
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @GetMapping("users/{userId}/goals")
-    public ResponseEntity<Page<GoalResponseDto>> getUsersGoalsPage(@PathVariable Long userId,
-                                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+    @GetMapping("goals")
+    public ResponseEntity<Page<GoalResponseDto>> getUsersGoalsPage(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                    @RequestParam(value = "size", defaultValue = "10") int size) {
-        Page<GoalResponseDto> goals = goalService.getUserGoalPage(userId, page, size);
+        Page<GoalResponseDto> goals = goalService.getUserGoalPage(page, size);
         return new ResponseEntity<>(goals, HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @GetMapping("users/{userId}/goals/filtered")
-    public ResponseEntity<Page<GoalResponseDto>> getGoalsFiltered(@PathVariable Long userId,
-                                                                        @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                        @RequestParam(value = "size", defaultValue = "10") int size,
-                                                                        @RequestParam(value = "name", required = false) String name,
-                                                                     @RequestBody(required = false) GoalFilterRequestDto goalFilterRequestDto) {
-        return new ResponseEntity<>(goalService.getUserGoalPageFiltered(userId,
-                page, size, name, goalFilterRequestDto) ,HttpStatus.OK);
+    @GetMapping("goals/filtered")
+    public ResponseEntity<Page<GoalResponseDto>> getGoalsFiltered(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                  @RequestParam(value = "size", defaultValue = "10") int size,
+                                                                  @RequestParam(value = "name", required = false) String name,
+                                                                  @RequestBody(required = false) GoalFilterRequestDto goalFilterRequestDto) {
+        return new ResponseEntity<>(
+                goalService.getUserGoalPageFiltered(page, size, name, goalFilterRequestDto), HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @PostMapping("/users/{userId}/goals")
-    public ResponseEntity<String> postGoals(@PathVariable Long userId,
-                                            @RequestBody GoalRequestDto goalRequestDto) {
-        Optional<Goal> g = goalService.postGoal(userId, goalRequestDto);
+    @PostMapping("goals")
+    public ResponseEntity<String> postGoals(@RequestBody GoalRequestDto goalRequestDto) {
+        Optional<Goal> g = goalService.postGoal(goalRequestDto);
         if (g.isPresent()) {
             return new ResponseEntity<>("Goal was created", HttpStatus.CREATED);
         } else {
@@ -60,20 +54,16 @@ public class GoalController {
         }
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @PutMapping("/users/{userId}/goals/{goalId}")
-    public ResponseEntity<GoalResponseDto> updateGoal(@PathVariable Long userId,
-                                                         @PathVariable Long goalId,
-                                                         @RequestBody GoalRequestDto goalRequestDto) {
-        return new ResponseEntity<>(goalService.updateGoal(userId, goalId, goalRequestDto),
+    @PutMapping("goals/{goalId}")
+    public ResponseEntity<GoalResponseDto> updateGoal(@PathVariable Long goalId,
+                                                      @RequestBody GoalRequestDto goalRequestDto) {
+        return new ResponseEntity<>(goalService.updateGoal(goalId, goalRequestDto),
                 HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @DeleteMapping("/users/{userId}/goals/{goalId}")
-    public ResponseEntity<String> deleteGoal(@PathVariable Long userId,
-                                             @PathVariable Long goalId) {
-        goalService.deleteGoal(userId, goalId);
+    @DeleteMapping("goals/{goalId}")
+    public ResponseEntity<String> deleteGoal(@PathVariable Long goalId) {
+        goalService.deleteGoal(goalId);
         return new ResponseEntity<>("Goal was deleted", HttpStatus.OK);
     }
 
