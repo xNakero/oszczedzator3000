@@ -1,6 +1,7 @@
 package pl.pz.oszczedzator3000.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pl.pz.oszczedzator3000.dto.userpersonaldetails.UserPersonalDetailsDto;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
@@ -30,34 +31,30 @@ public class UserPersonalDetailsService {
         this.userPersonalDetailsMapper = userPersonalDetailsMapper;
     }
 
-    public UserPersonalDetailsDto getUserPersonalDetails(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findById(userId)
+    public UserPersonalDetailsDto getUserPersonalDetails() {
+        User user = getUserPrincipal();
+        UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findByUser(user)
                 .orElseThrow(UserPersonalDetailsNotFoundException::new);
         return userPersonalDetailsMapper.mapToUserPersonalDetailsDto(userPersonalDetails);
     }
 
-    public Optional<UserPersonalDetailsDto> postUserPersonalDetails(
-            Long userId,
-            UserPersonalDetailsDto userPersonalDetailsDto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    public Optional<UserPersonalDetailsDto> postUserPersonalDetails(UserPersonalDetailsDto userPersonalDetailsDto) {
+        User user = getUserPrincipal();
         if (userPersonalDetailsDto.hasInvalidData()) {
             return Optional.empty();
         }
         UserPersonalDetails userPersonalDetails = userPersonalDetailsMapper
                 .mapToUserPersonalDetails(userPersonalDetailsDto);
-        userPersonalDetails.setUserId(userId);
+        userPersonalDetails.setUserId(user.getUserId());
         userPersonalDetails.setUser(user);
         userPersonalDetailsRepository.save(userPersonalDetails);
         return Optional.of(userPersonalDetailsDto);
     }
 
     @Transactional
-    public UserPersonalDetailsDto updateUserPersonalDetails(
-            Long userId,
-            UserPersonalDetailsDto userPersonalDetailsDto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findById(userId)
+    public UserPersonalDetailsDto updateUserPersonalDetails(UserPersonalDetailsDto userPersonalDetailsDto) {
+        User user = getUserPrincipal();
+        UserPersonalDetails userPersonalDetails = userPersonalDetailsRepository.findByUser(user)
                 .orElseThrow(UserPersonalDetailsNotFoundException::new);
         if (userPersonalDetailsDto.getAge() >= 18) {
             userPersonalDetails.setAge(userPersonalDetailsDto.getAge());
@@ -79,4 +76,13 @@ public class UserPersonalDetailsService {
         }
         return userPersonalDetailsMapper.mapToUserPersonalDetailsDto(userPersonalDetails);
     }
+
+    private User getUserPrincipal() {
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
 }

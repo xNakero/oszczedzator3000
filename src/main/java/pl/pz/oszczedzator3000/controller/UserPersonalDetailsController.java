@@ -11,39 +11,35 @@ import pl.pz.oszczedzator3000.service.UserPersonalDetailsService;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/users")
+@RequestMapping("api/v1")
 public class UserPersonalDetailsController {
 
-    private UserPersonalDetailsService userPersonalDetailsService;
+    private final UserPersonalDetailsService userPersonalDetailsService;
 
     @Autowired
     public UserPersonalDetailsController(UserPersonalDetailsService userPersonalDetailsService) {
         this.userPersonalDetailsService = userPersonalDetailsService;
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @GetMapping("{userId}/details")
-    public ResponseEntity<UserPersonalDetailsDto> getUserPersonalDetails(@PathVariable Long userId) {
-        return new ResponseEntity<>(userPersonalDetailsService.getUserPersonalDetails(userId), HttpStatus.OK);
+
+    @GetMapping("details")
+    public ResponseEntity<UserPersonalDetailsDto> getUserPersonalDetails() {
+        return new ResponseEntity<>(userPersonalDetailsService.getUserPersonalDetails(), HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @PostMapping("{userId}/details")
-    public ResponseEntity<UserPersonalDetailsDto> postUserPersonalDetails(@PathVariable Long userId,
-                                                                          @RequestBody UserPersonalDetailsDto userPersonalDetailsDto) {
+    @PostMapping("details")
+    public ResponseEntity<UserPersonalDetailsDto> postUserPersonalDetails(@RequestBody UserPersonalDetailsDto userPersonalDetailsDto) {
         Optional<UserPersonalDetailsDto> userPersonalDetailsDtoOptional =
-                userPersonalDetailsService.postUserPersonalDetails(userId, userPersonalDetailsDto);
+                userPersonalDetailsService.postUserPersonalDetails(userPersonalDetailsDto);
         return userPersonalDetailsDtoOptional
                 .map(personalDetailsDto -> new ResponseEntity<>(personalDetailsDto, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @PutMapping("{userId}/details")
-    public ResponseEntity<UserPersonalDetailsDto> updateUserPersonalDetails(@PathVariable Long userId,
-                                                                            @RequestBody UserPersonalDetailsDto userPersonalDetailsDto) {
+    @PutMapping("details")
+    public ResponseEntity<UserPersonalDetailsDto> updateUserPersonalDetails(@RequestBody UserPersonalDetailsDto userPersonalDetailsDto) {
         return new ResponseEntity<>(
-                userPersonalDetailsService.updateUserPersonalDetails(userId, userPersonalDetailsDto),
+                userPersonalDetailsService.updateUserPersonalDetails(userPersonalDetailsDto),
                 HttpStatus.OK);
     }
 }
