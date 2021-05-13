@@ -2,6 +2,7 @@ package pl.pz.oszczedzator3000.service;
 
 import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.dto.goalanalyser.GoalAnalyserRequestDto;
@@ -22,8 +23,8 @@ import java.time.temporal.ChronoUnit;
 @Service
 public class GoalAnalyserService {
 
-    private UserRepository userRepository;
-    private GoalRepository goalRepository;
+    private final UserRepository userRepository;
+    private final GoalRepository goalRepository;
 
     @Autowired
     public GoalAnalyserService(UserRepository userRepository, GoalRepository goalRepository) {
@@ -32,10 +33,10 @@ public class GoalAnalyserService {
     }
 
     //basic version of analyser where I assume that every month has 30 days
-    public GoalAnalyserResponseDto getGoalAnalyserResult(Long userId,
-                                                         Long goalId,
+    public GoalAnalyserResponseDto getGoalAnalyserResult(Long goalId,
                                                          GoalAnalyserRequestDto goalAnalyserRequestDto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
         Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalNotFoundException(goalId));
         if(goalAnalyserRequestDto.getStartDate() == null || goalAnalyserRequestDto.getEndDate() == null) {
             throw new InvalidDatesException("At least one of dates is null.");

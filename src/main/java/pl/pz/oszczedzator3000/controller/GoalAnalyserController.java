@@ -13,19 +13,17 @@ import pl.pz.oszczedzator3000.service.GoalAnalyserService;
 @RequestMapping("api/v1")
 public class GoalAnalyserController {
 
-    private GoalAnalyserService goalAnalyserService;
+    private final GoalAnalyserService goalAnalyserService;
 
     @Autowired
     public GoalAnalyserController(GoalAnalyserService goalAnalyserService) {
         this.goalAnalyserService = goalAnalyserService;
     }
 
-    @PreAuthorize(value = "#userId == authentication.details")
-    @GetMapping("users/{userId}/goals/{goalId}/analyser")
-    public ResponseEntity<GoalAnalyserResponseDto> getGoalAnalyzerResult(@PathVariable Long userId,
-                                                                         @PathVariable Long goalId,
+    @GetMapping("goals/{goalId}/analyser")
+    public ResponseEntity<GoalAnalyserResponseDto> getGoalAnalyzerResult(@PathVariable Long goalId,
                                                                          @RequestBody GoalAnalyserRequestDto goalAnalyserRequestDto) {
-        return new ResponseEntity<>(goalAnalyserService.getGoalAnalyserResult(userId, goalId, goalAnalyserRequestDto),
+        return new ResponseEntity<>(goalAnalyserService.getGoalAnalyserResult(goalId, goalAnalyserRequestDto),
                 HttpStatus.OK);
     }
 }
