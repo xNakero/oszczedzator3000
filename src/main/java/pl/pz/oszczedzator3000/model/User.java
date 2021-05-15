@@ -40,10 +40,12 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",
+            cascade = {CascadeType.REMOVE, CascadeType.REFRESH})
     private Set<Goal> goals;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",
+            cascade = {CascadeType.REMOVE, CascadeType.REFRESH})
     private Set<Expense> expenses;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
