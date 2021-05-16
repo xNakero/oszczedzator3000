@@ -60,6 +60,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/api/v1/register",
                 "/api/v1/enums/**",
                 "/h2-console/**",
-                "extend-token");
+                "/api/v1/token-extension",
+                "/api/v1/auth**");
     }
 }

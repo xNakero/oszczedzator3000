@@ -8,6 +8,7 @@ import pl.pz.oszczedzator3000.dto.exception.ExceptionDto;
 import pl.pz.oszczedzator3000.dto.jwt.JwtDto;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
 import pl.pz.oszczedzator3000.service.JwtService;
+import pl.pz.oszczedzator3000.service.TokenService;
 import pl.pz.oszczedzator3000.service.UserService;
 
 @RestController
@@ -15,13 +16,15 @@ import pl.pz.oszczedzator3000.service.UserService;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
-    private JwtService jwtService;
-    private UserService userService;
+    private final JwtService jwtService;
+    private final UserService userService;
+    private final TokenService tokenService;
 
     @Autowired
-    public UserController(JwtService jwtService, UserService userService) {
+    public UserController(JwtService jwtService, UserService userService, TokenService tokenService) {
         this.jwtService = jwtService;
         this.userService = userService;
+        this.tokenService = tokenService;
     }
 
     @PostMapping("login")
@@ -29,6 +32,9 @@ public class UserController {
         String token = jwtService.authenticate(userDto);
         if (token.equals("Bad credentials")) {
             return new ResponseEntity<>(new ExceptionDto(token), HttpStatus.BAD_REQUEST);
+        }
+        if (token.equals("User is disabled")) {
+            return new ResponseEntity<>(new ExceptionDto("User is disabled"), HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(new JwtDto(token), HttpStatus.OK);
     }
@@ -42,5 +48,11 @@ public class UserController {
     public ResponseEntity<?> register(@RequestBody UserDto userDto) {
         userService.register(userDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("auth")
+    public ResponseEntity<?> confirmEmail(@RequestParam String token) {
+        tokenService.confirmEmail(token);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -33,6 +33,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private boolean isEnabled;
+
     @ManyToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
@@ -50,6 +53,9 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserPersonalDetails userPersonalDetails;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private AuthToken authToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -85,6 +91,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isEnabled;
     }
 }

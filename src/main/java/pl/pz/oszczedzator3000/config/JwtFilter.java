@@ -3,6 +3,8 @@ package pl.pz.oszczedzator3000.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class JwtFilter extends BasicAuthenticationFilter {
 
     private final String SECRET = "Lj1xiAOz/D+E{E%";
+    private final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
 
     public JwtFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
@@ -28,9 +31,13 @@ public class JwtFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String header = request.getHeader("Authorization");
-        UsernamePasswordAuthenticationToken authResult = getAuthenticationByToken(header);
-        SecurityContextHolder.getContext().setAuthentication(authResult);
-        chain.doFilter(request, response);
+        try {
+            UsernamePasswordAuthenticationToken authResult = getAuthenticationByToken(header);
+            SecurityContextHolder.getContext().setAuthentication(authResult);
+            chain.doFilter(request, response);
+        } catch (NullPointerException e) {
+            logger.warn("Jwt not found");
+        }
     }
 
 

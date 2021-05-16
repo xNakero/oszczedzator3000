@@ -42,7 +42,7 @@ public class UserPersonalDetails {
     private int kids;
 
     @ToString.Exclude
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     private User user;
 }

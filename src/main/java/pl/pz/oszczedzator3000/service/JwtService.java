@@ -9,17 +9,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pl.pz.oszczedzator3000.config.JwtTokenProvider;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
+import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
+import pl.pz.oszczedzator3000.model.User;
+import pl.pz.oszczedzator3000.repository.UserRepository;
 
 @Service
 public class JwtService {
 
     private AuthenticationManager authenticationManager;
     private JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userRepository;
 
     @Autowired
-    public JwtService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    public JwtService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userRepository = userRepository;
     }
 
     public String authenticate(UserDto userAuth) {
