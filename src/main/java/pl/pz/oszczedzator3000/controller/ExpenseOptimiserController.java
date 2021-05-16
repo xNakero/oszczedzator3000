@@ -11,6 +11,7 @@ import pl.pz.oszczedzator3000.service.ExpenseOptimiserService;
 
 @RestController
 @RequestMapping("api/v1")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ExpenseOptimiserController {
 
     private final ExpenseOptimiserService expenseOptimiserService;
