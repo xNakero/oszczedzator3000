@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.config.PasswordConfig;
+import pl.pz.oszczedzator3000.dto.user.UsernameDto;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
 import pl.pz.oszczedzator3000.exceptions.registration.RegistrationFailedException;
 import pl.pz.oszczedzator3000.exceptions.token.InvalidTokenException;
 import pl.pz.oszczedzator3000.exceptions.user.UserAlreadyExistsException;
+import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.model.AuthToken;
 import pl.pz.oszczedzator3000.model.Role;
 import pl.pz.oszczedzator3000.model.User;
@@ -23,6 +25,7 @@ import pl.pz.oszczedzator3000.repository.UserRepository;
 import javax.mail.MessagingException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserService {
@@ -33,7 +36,6 @@ public class UserService {
     private final TokenService tokenService;
     private final MailService mailService;
     private final TokenRepository tokenRepository;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public UserService(UserRepository userRepository,
@@ -73,12 +75,7 @@ public class UserService {
         } else {
             throw new UserAlreadyExistsException(userDto.getUsername());
         }
-        try {
-            sendToken(user);
-        } catch (MessagingException | MailAuthenticationException e) {
-            logger.debug(e.getMessage());
-            throw new RegistrationFailedException();
-        }
+        sendToken(user);
     }
 
     public void confirmEmail(String value) {
@@ -89,7 +86,13 @@ public class UserService {
         tokenRepository.deleteById(token.getTokenId());
     }
 
-    private void sendToken(User user) throws MessagingException {
+    public void resendToken(UsernameDto usernameDto) {
+        User user = userRepository.findByUsername(usernameDto.getUsername())
+                .orElseThrow(UserNotFoundException::new);
+        sendToken(user);
+    }
+
+    private void sendToken(User user){
         AuthToken token = tokenService.generateToken(user);
         String email = user.getUsername();
         String text = Constants.SERVER_URL + "/api/v1/auth?token=" + token.getValue();

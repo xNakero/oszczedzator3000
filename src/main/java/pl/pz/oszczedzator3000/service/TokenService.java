@@ -20,9 +20,14 @@ public class TokenService {
 
     public AuthToken generateToken(User user) {
         String tokenValue = UUID.randomUUID().toString();
-        AuthToken token = new AuthToken();
+        AuthToken token;
+        if (user.getAuthToken() == null) {
+            token = new AuthToken();
+            token.setUser(user);
+        } else {
+            token = user.getAuthToken();
+        }
         token.setValue(tokenValue);
-        token.setUser(user);
         tokenRepository.save(token);
         return token;
     }
