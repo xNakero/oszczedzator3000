@@ -8,7 +8,6 @@ import pl.pz.oszczedzator3000.dto.exception.ExceptionDto;
 import pl.pz.oszczedzator3000.dto.jwt.JwtDto;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
 import pl.pz.oszczedzator3000.service.JwtService;
-import pl.pz.oszczedzator3000.service.TokenService;
 import pl.pz.oszczedzator3000.service.UserService;
 
 @RestController
@@ -18,13 +17,11 @@ public class UserController {
 
     private final JwtService jwtService;
     private final UserService userService;
-    private final TokenService tokenService;
 
     @Autowired
-    public UserController(JwtService jwtService, UserService userService, TokenService tokenService) {
+    public UserController(JwtService jwtService, UserService userService) {
         this.jwtService = jwtService;
         this.userService = userService;
-        this.tokenService = tokenService;
     }
 
     @PostMapping("login")
@@ -52,7 +49,7 @@ public class UserController {
 
     @PostMapping("auth")
     public ResponseEntity<?> confirmEmail(@RequestParam String token) {
-        tokenService.confirmEmail(token);
+        userService.confirmEmail(token);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
