@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "auth_token")
@@ -23,6 +24,7 @@ public class AuthToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tokenId;
     private String value;
+    private LocalDateTime validUntil;
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;

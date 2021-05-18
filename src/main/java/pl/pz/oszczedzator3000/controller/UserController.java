@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pz.oszczedzator3000.dto.exception.ExceptionDto;
 import pl.pz.oszczedzator3000.dto.jwt.JwtDto;
+import pl.pz.oszczedzator3000.dto.user.AuthDto;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
 import pl.pz.oszczedzator3000.dto.user.UsernameDto;
 import pl.pz.oszczedzator3000.service.JwtService;
@@ -49,13 +50,13 @@ public class UserController {
     }
 
     @PostMapping("auth")
-    public ResponseEntity<?> confirmEmail(@RequestParam String token) {
-        userService.confirmEmail(token);
+    public ResponseEntity<?> confirmEmail(@RequestBody AuthDto authDto) {
+        userService.confirmEmail(authDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("auth-new")
-    public ResponseEntity<?> confirmEmail(@RequestBody UsernameDto usernameDto) {
+    @PostMapping("new-token")
+    public ResponseEntity<?> newToken(@RequestBody UsernameDto usernameDto) {
         userService.resendToken(usernameDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }

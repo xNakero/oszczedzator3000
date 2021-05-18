@@ -1,18 +1,16 @@
 package pl.pz.oszczedzator3000.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailAuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.config.PasswordConfig;
+import pl.pz.oszczedzator3000.dto.user.AuthDto;
 import pl.pz.oszczedzator3000.dto.user.UsernameDto;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
-import pl.pz.oszczedzator3000.exceptions.registration.RegistrationFailedException;
 import pl.pz.oszczedzator3000.exceptions.token.InvalidTokenException;
 import pl.pz.oszczedzator3000.exceptions.user.UserAlreadyExistsException;
+import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.model.AuthToken;
 import pl.pz.oszczedzator3000.model.Role;
@@ -22,10 +20,9 @@ import pl.pz.oszczedzator3000.repository.RoleRepository;
 import pl.pz.oszczedzator3000.repository.TokenRepository;
 import pl.pz.oszczedzator3000.repository.UserRepository;
 
-import javax.mail.MessagingException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserService {
@@ -78,8 +75,15 @@ public class UserService {
         sendToken(user);
     }
 
-    public void confirmEmail(String value) {
-        AuthToken token = tokenRepository.findByValue(value).orElseThrow(InvalidTokenException::new);
+    public void confirmEmail(AuthDto authDto) {
+        AuthToken token = tokenRepository.findByValue(authDto.getTokenValue())
+                .orElseThrow(() -> new InvalidTokenException("No such token was found."));
+        if (!token.getUser().getUsername().equals(authDto.getUsername())) {
+            throw new InvalidTokenException("User doesn't match token.");
+        }
+        if (token.getValidUntil().isBefore(LocalDateTime.now())) {
+            throw new InvalidTokenException("Token Expired.");
+        }
         User user = token.getUser();
         user.setEnabled(true);
         userRepository.save(user);
@@ -89,13 +93,17 @@ public class UserService {
     public void resendToken(UsernameDto usernameDto) {
         User user = userRepository.findByUsername(usernameDto.getUsername())
                 .orElseThrow(UserNotFoundException::new);
+        if (user.isEnabled()) {
+            throw new UserNotAllowedException();
+        }
         sendToken(user);
     }
 
-    private void sendToken(User user){
+    private void sendToken(User user) {
         AuthToken token = tokenService.generateToken(user);
         String email = user.getUsername();
-        String text = Constants.SERVER_URL + "/api/v1/auth?token=" + token.getValue();
+        String text = "Your token is: " + token.getValue() + System.lineSeparator() + "It will expire in " +
+                +Constants.TOKEN_VALIDATION_MINUTES + " minutes.";
         String subject = "Confirm your email";
         mailService.sendMail(email, subject, text);
     }
