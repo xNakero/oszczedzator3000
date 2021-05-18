@@ -8,6 +8,7 @@ import pl.pz.oszczedzator3000.config.PasswordConfig;
 import pl.pz.oszczedzator3000.dto.user.AuthDto;
 import pl.pz.oszczedzator3000.dto.user.UsernameDto;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
+import pl.pz.oszczedzator3000.exceptions.registration.InvalidRegistrationDataException;
 import pl.pz.oszczedzator3000.exceptions.token.InvalidTokenException;
 import pl.pz.oszczedzator3000.exceptions.user.UserAlreadyExistsException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
@@ -54,6 +55,9 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByUsername(userDto.getUsername());
         User user;
         if (userOptional.isEmpty()) {
+            if (!IsUserCredentialsValid(userDto)) {
+                throw new InvalidRegistrationDataException();
+            }
             user = new User();
             user.setUsername(userDto.getUsername());
             user.setPassword(passwordConfig.passwordEncoder().encode(userDto.getPassword()));
@@ -106,5 +110,11 @@ public class UserService {
                 +Constants.TOKEN_VALIDATION_MINUTES + " minutes.";
         String subject = "Confirm your email";
         mailService.sendMail(email, subject, text);
+    }
+
+    private boolean IsUserCredentialsValid(UserDto userDto) {
+        return (userDto.getUsername().matches(Constants.USERNAME_REGEX) &&
+                userDto.getPassword().matches(Constants.PASSWORD_REGEX) &&
+                userDto.getPassword().length() >= 8 );
     }
 }
