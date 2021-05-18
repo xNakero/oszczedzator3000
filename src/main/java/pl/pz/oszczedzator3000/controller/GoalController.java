@@ -36,7 +36,7 @@ public class GoalController {
         return new ResponseEntity<>(goals, HttpStatus.OK);
     }
 
-    @GetMapping("goals/filtered")
+    @PostMapping("goals/filtered")
     public ResponseEntity<Page<GoalResponseDto>> getGoalsFiltered(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                   @RequestParam(value = "size", defaultValue = "10") int size,
                                                                   @RequestParam(value = "name", required = false) String name,

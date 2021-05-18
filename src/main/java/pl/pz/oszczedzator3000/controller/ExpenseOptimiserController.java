@@ -21,7 +21,7 @@ public class ExpenseOptimiserController {
         this.expenseOptimiserService = expenseOptimiserService;
     }
 
-    @GetMapping("optimiser")
+    @PostMapping("optimiser")
     public ResponseEntity<ExpenseOptimiserResponseDto> getOptimiserResults(@RequestBody FiltrationExpenseOptimiserRequestDto filtrationExpenseOptimiserRequestDto) {
         return new ResponseEntity<>(
                 expenseOptimiserService.getOptimiserResults(filtrationExpenseOptimiserRequestDto),

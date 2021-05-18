@@ -40,7 +40,7 @@ public class ExpenseController {
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
 
-    @GetMapping("expenses/filtered")
+    @PostMapping("expenses/filtered")
     public ResponseEntity<Page<ExpenseResponseDto>> getExpensesFiltered(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                         @RequestParam(value = "size", defaultValue = "10") int size,
                                                                         @RequestBody(required = false) ExpenseFilterRequestDto expenseFilterRequestDto) {

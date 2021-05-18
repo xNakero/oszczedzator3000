@@ -21,7 +21,7 @@ public class GoalAnalyserController {
         this.goalAnalyserService = goalAnalyserService;
     }
 
-    @GetMapping("goals/{goalId}/analyser")
+    @PostMapping("goals/{goalId}/analyser")
     public ResponseEntity<GoalAnalyserResponseDto> getGoalAnalyzerResult(@PathVariable Long goalId,
                                                                          @RequestBody GoalAnalyserRequestDto goalAnalyserRequestDto) {
         return new ResponseEntity<>(goalAnalyserService.getGoalAnalyserResult(goalId, goalAnalyserRequestDto),
