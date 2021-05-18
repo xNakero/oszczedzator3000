@@ -369,11 +369,11 @@ Expense Optimiser analyses user's expenses and returns informations whether user
 ```
 {
     "salary": boolean,
-    "profession": string,
-    "age": int,
-    "sex": string,
-    "relationship_status": string,
-    "kids": int,
+    "profession": boolean,
+    "age": boolean,
+    "sex": boolean,
+    "relationship_status": boolean,
+    "kids": boolean,
     "start_date": YYYY-MM-DD,
     "end_date": YYYY-MM-DD,
     "categories": [
