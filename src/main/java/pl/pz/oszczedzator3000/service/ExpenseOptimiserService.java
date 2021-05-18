@@ -15,6 +15,7 @@ import pl.pz.oszczedzator3000.exceptions.user.UserPersonalDetailsNotFoundExcepti
 import pl.pz.oszczedzator3000.model.Expense;
 import pl.pz.oszczedzator3000.model.User;
 import pl.pz.oszczedzator3000.model.UserPersonalDetails;
+import pl.pz.oszczedzator3000.model.enums.AppRole;
 import pl.pz.oszczedzator3000.model.enums.Category;
 import pl.pz.oszczedzator3000.repository.UserPersonalDetailsRepository;
 import pl.pz.oszczedzator3000.repository.UserRepository;
@@ -97,6 +98,7 @@ public class ExpenseOptimiserService {
     private List<User> filterUsers(FiltrationExpenseOptimiserRequestDto filtrationExpenseOptimiserRequestDto,
                                    UserPersonalDetails details) {
         return userRepository.streamAllBy()
+                .filter(u -> u.getUserPersonalDetails() != null)
                 .filter(u -> !filtrationExpenseOptimiserRequestDto.isSalary() ||
                         (u.getUserPersonalDetails().getSalary() >= details.getSalary() - Constants.SALARY_DEVIATION &&
                                 u.getUserPersonalDetails().getSalary() <= details.getSalary() + Constants.SALARY_DEVIATION))
