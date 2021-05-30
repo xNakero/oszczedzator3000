@@ -37,7 +37,7 @@ public class UserPersonalDetailsController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
-    @PutMapping("details")
+    @PatchMapping("details")
     public ResponseEntity<UserPersonalDetailsDto> updateUserPersonalDetails(@RequestBody UserPersonalDetailsDto userPersonalDetailsDto) {
         return new ResponseEntity<>(
                 userPersonalDetailsService.updateUserPersonalDetails(userPersonalDetailsDto),

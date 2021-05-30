@@ -55,7 +55,7 @@ public class GoalController {
         }
     }
 
-    @PutMapping("goals/{goalId}")
+    @PatchMapping("goals/{goalId}")
     public ResponseEntity<GoalResponseDto> updateGoal(@PathVariable Long goalId,
                                                       @RequestBody GoalRequestDto goalRequestDto) {
         return new ResponseEntity<>(goalService.updateGoal(goalId, goalRequestDto),
