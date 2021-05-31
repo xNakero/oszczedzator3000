@@ -3,6 +3,6 @@ package pl.pz.oszczedzator3000.exceptions.registration;
 public class InvalidRegistrationDataException extends RuntimeException{
 
     public InvalidRegistrationDataException() {
-        super("Password or username are not valid.");
+        super("Invalid registration data.");
     }
 }

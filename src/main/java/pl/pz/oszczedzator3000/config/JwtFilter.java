@@ -32,18 +32,18 @@ public class JwtFilter extends BasicAuthenticationFilter {
         this.jwtSecretService = jwtSecretService;
     }
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String header = request.getHeader("Authorization");
-        try {
-            UsernamePasswordAuthenticationToken authResult = getAuthenticationByToken(header);
-            SecurityContextHolder.getContext().setAuthentication(authResult);
-            chain.doFilter(request, response);
-        } catch (NullPointerException | JwtException e) {
-            logger.warn("JwtSecret not found");
-            response.setStatus(401);
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+            String header = request.getHeader("Authorization");
+            try {
+                UsernamePasswordAuthenticationToken authResult = getAuthenticationByToken(header);
+                SecurityContextHolder.getContext().setAuthentication(authResult);
+                chain.doFilter(request, response);
+            } catch (NullPointerException | JwtException e) {
+                logger.warn("JwtSecret not found");
+                response.setStatus(401);
+            }
         }
-    }
 
 
     private UsernamePasswordAuthenticationToken getAuthenticationByToken(String header) {

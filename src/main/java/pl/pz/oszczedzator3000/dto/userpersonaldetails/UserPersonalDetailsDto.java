@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import pl.pz.oszczedzator3000.model.enums.Profession;
 import pl.pz.oszczedzator3000.model.enums.RelationshipStatus;
@@ -29,5 +30,9 @@ public class UserPersonalDetailsDto {
 
     public boolean hasInvalidData() {
         return salary < 0 || profession == null || age < 18 || sex == null || relationshipStatus == null || kids < 0;
+    }
+
+    public boolean hasEmptyOrInvalidAttributes() {
+        return salary <= 0 || profession == null || age < 18 || sex == null || relationshipStatus == null || kids <= 0;
     }
 }

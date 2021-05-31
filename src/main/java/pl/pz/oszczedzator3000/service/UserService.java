@@ -12,10 +12,8 @@ import pl.pz.oszczedzator3000.exceptions.token.InvalidTokenException;
 import pl.pz.oszczedzator3000.exceptions.user.UserAlreadyExistsException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
-import pl.pz.oszczedzator3000.model.AuthToken;
-import pl.pz.oszczedzator3000.model.PasswordChangeToken;
-import pl.pz.oszczedzator3000.model.Role;
-import pl.pz.oszczedzator3000.model.User;
+import pl.pz.oszczedzator3000.mapper.UserPersonalDetailsMapper;
+import pl.pz.oszczedzator3000.model.*;
 import pl.pz.oszczedzator3000.model.enums.AppRole;
 import pl.pz.oszczedzator3000.repository.*;
 
@@ -34,6 +32,7 @@ public class UserService {
     private final AuthTokenRepository authTokenRepository;
     private final JwtSecretRepository jwtSecretRepository;
     private final PasswordChangeTokenRepository passwordChangeTokenRepository;
+    private final UserPersonalDetailsMapper userPersonalDetailsMapper;
 
     @Autowired
     public UserService(UserRepository userRepository,
@@ -41,7 +40,7 @@ public class UserService {
                        PasswordConfig passwordConfig,
                        TokenService tokenService,
                        MailService mailService,
-                       AuthTokenRepository tokenRepository, JwtSecretRepository jwtSecretRepository, PasswordChangeTokenRepository passwordChangeTokenRepository) {
+                       AuthTokenRepository tokenRepository, JwtSecretRepository jwtSecretRepository, PasswordChangeTokenRepository passwordChangeTokenRepository, UserPersonalDetailsMapper userPersonalDetailsMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordConfig = passwordConfig;
@@ -50,19 +49,21 @@ public class UserService {
         this.authTokenRepository = tokenRepository;
         this.jwtSecretRepository = jwtSecretRepository;
         this.passwordChangeTokenRepository = passwordChangeTokenRepository;
+        this.userPersonalDetailsMapper = userPersonalDetailsMapper;
     }
 
     @Transactional
-    public void register(UserDto userDto) {
-        Optional<User> userOptional = userRepository.findByUsername(userDto.getUsername());
+    public void register(RegistrationDto registrationDto) {
+        Optional<User> userOptional = userRepository.findByUsername(registrationDto.getUsername());
         User user;
         if (userOptional.isEmpty()) {
-            if (!IsUserCredentialsValid(userDto)) {
+            if (!IsUserCredentialsValid(registrationDto) ||
+                    registrationDto.getUserPersonalDetailsDto().hasEmptyOrInvalidAttributes()) {
                 throw new InvalidRegistrationDataException();
             }
             user = new User();
-            user.setUsername(userDto.getUsername());
-            user.setPassword(passwordConfig.passwordEncoder().encode(userDto.getPassword()));
+            user.setUsername(registrationDto.getUsername());
+            user.setPassword(passwordConfig.passwordEncoder().encode(registrationDto.getPassword()));
             Optional<Role> roleOptional = roleRepository.findByName(AppRole.USER.getRoleName());
             roleOptional.ifPresentOrElse(role1 -> {
                         user.setRoles(Set.of(role1));
@@ -76,8 +77,11 @@ public class UserService {
                         userRepository.save(user);
                     });
         } else {
-            throw new UserAlreadyExistsException(userDto.getUsername());
+            throw new UserAlreadyExistsException(registrationDto.getUsername());
         }
+        UserPersonalDetails userPersonalDetails = userPersonalDetailsMapper
+                .mapToUserPersonalDetailsWithId(registrationDto.getUserPersonalDetailsDto(), user.getUserId());
+        user.setUserPersonalDetails(userPersonalDetails);
         sendAuthToken(user);
     }
 
@@ -114,10 +118,10 @@ public class UserService {
         mailService.sendMail(email, subject, text);
     }
 
-    private boolean IsUserCredentialsValid(UserDto userDto) {
-        return (userDto.getUsername().matches(Constants.USERNAME_REGEX) &&
-                userDto.getPassword().matches(Constants.PASSWORD_REGEX) &&
-                userDto.getPassword().length() >= 8 );
+    private boolean IsUserCredentialsValid(RegistrationDto registrationDto) {
+        return (registrationDto.getUsername().matches(Constants.USERNAME_REGEX) &&
+                registrationDto.getPassword().matches(Constants.PASSWORD_REGEX) &&
+                registrationDto.getPassword().length() >= 8 );
     }
 
     public void logoutAll() {
