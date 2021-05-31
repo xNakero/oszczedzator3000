@@ -57,6 +57,9 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user")
     private AuthToken authToken;
 
+    @OneToOne(mappedBy = "user")
+    private PasswordChangeToken passwordChangeToken;
+    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()

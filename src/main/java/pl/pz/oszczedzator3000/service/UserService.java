@@ -53,6 +53,7 @@ public class UserService {
         this.mailService = mailService;
         this.tokenRepository = tokenRepository;
         this.jwtSecretRepository = jwtSecretRepository;
+        this.passwordChangeTokenRepository = passwordChangeTokenRepository;
     }
 
     @Transactional

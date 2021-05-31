@@ -79,4 +79,15 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    @PostMapping("forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordFirstStepDto forgotPasswordFirstStepDto) {
+        userService.forgotPassword(forgotPasswordFirstStepDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("forgot-password/new-password")
+    public ResponseEntity<?> newPassword(@RequestBody ForgotPasswordSecondStepDto forgotPasswordSecondStepDto) {
+        userService.newPassword(forgotPasswordSecondStepDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
