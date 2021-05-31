@@ -8,7 +8,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class PasswordChangeLoggedInDto {
+public class PasswordChangeDto {
 
     @JsonAlias("old_password")
     private String oldPassword;

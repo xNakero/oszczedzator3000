@@ -1,20 +1,14 @@
 package pl.pz.oszczedzator3000.controller;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pz.oszczedzator3000.dto.exception.ExceptionDto;
 import pl.pz.oszczedzator3000.dto.jwt.JwtDto;
-import pl.pz.oszczedzator3000.dto.user.AuthDto;
-import pl.pz.oszczedzator3000.dto.user.PasswordChangeLoggedInDto;
-import pl.pz.oszczedzator3000.dto.user.UserDto;
-import pl.pz.oszczedzator3000.dto.user.UsernameDto;
+import pl.pz.oszczedzator3000.dto.user.*;
 import pl.pz.oszczedzator3000.service.JwtService;
 import pl.pz.oszczedzator3000.service.UserService;
-
-import java.util.Base64;
 
 @RestController
 @RequestMapping("api/v1")
@@ -72,8 +66,8 @@ public class UserController {
     }
 
     @PostMapping("change-password")
-    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeLoggedInDto passwordChangeLoggedInDto) {
-        if (userService.changePassword(passwordChangeLoggedInDto)) {
+    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeDto passwordChangeDto) {
+        if (userService.changePassword(passwordChangeDto)) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

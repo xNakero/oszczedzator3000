@@ -6,23 +6,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.config.PasswordConfig;
-import pl.pz.oszczedzator3000.dto.user.AuthDto;
-import pl.pz.oszczedzator3000.dto.user.PasswordChangeLoggedInDto;
-import pl.pz.oszczedzator3000.dto.user.UsernameDto;
-import pl.pz.oszczedzator3000.dto.user.UserDto;
+import pl.pz.oszczedzator3000.dto.user.*;
 import pl.pz.oszczedzator3000.exceptions.registration.InvalidRegistrationDataException;
 import pl.pz.oszczedzator3000.exceptions.token.InvalidTokenException;
 import pl.pz.oszczedzator3000.exceptions.user.UserAlreadyExistsException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotAllowedException;
 import pl.pz.oszczedzator3000.exceptions.user.UserNotFoundException;
 import pl.pz.oszczedzator3000.model.AuthToken;
+import pl.pz.oszczedzator3000.model.PasswordChangeToken;
 import pl.pz.oszczedzator3000.model.Role;
 import pl.pz.oszczedzator3000.model.User;
 import pl.pz.oszczedzator3000.model.enums.AppRole;
-import pl.pz.oszczedzator3000.repository.JwtSecretRepository;
-import pl.pz.oszczedzator3000.repository.RoleRepository;
-import pl.pz.oszczedzator3000.repository.TokenRepository;
-import pl.pz.oszczedzator3000.repository.UserRepository;
+import pl.pz.oszczedzator3000.repository.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -36,8 +31,9 @@ public class UserService {
     private final PasswordConfig passwordConfig;
     private final TokenService tokenService;
     private final MailService mailService;
-    private final TokenRepository tokenRepository;
+    private final AuthTokenRepository authTokenRepository;
     private final JwtSecretRepository jwtSecretRepository;
+    private final PasswordChangeTokenRepository passwordChangeTokenRepository;
 
     @Autowired
     public UserService(UserRepository userRepository,
@@ -45,13 +41,13 @@ public class UserService {
                        PasswordConfig passwordConfig,
                        TokenService tokenService,
                        MailService mailService,
-                       TokenRepository tokenRepository, JwtSecretRepository jwtSecretRepository) {
+                       AuthTokenRepository tokenRepository, JwtSecretRepository jwtSecretRepository, PasswordChangeTokenRepository passwordChangeTokenRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordConfig = passwordConfig;
         this.tokenService = tokenService;
         this.mailService = mailService;
-        this.tokenRepository = tokenRepository;
+        this.authTokenRepository = tokenRepository;
         this.jwtSecretRepository = jwtSecretRepository;
         this.passwordChangeTokenRepository = passwordChangeTokenRepository;
     }
@@ -82,11 +78,11 @@ public class UserService {
         } else {
             throw new UserAlreadyExistsException(userDto.getUsername());
         }
-        sendToken(user);
+        sendAuthToken(user);
     }
 
     public void confirmEmail(AuthDto authDto) {
-        AuthToken token = tokenRepository.findByValue(authDto.getTokenValue())
+        AuthToken token = authTokenRepository.findByValue(authDto.getTokenValue())
                 .orElseThrow(() -> new InvalidTokenException("No such token was found."));
         if (!token.getUser().getUsername().equals(authDto.getUsername())) {
             throw new InvalidTokenException("User doesn't match token.");
@@ -97,7 +93,7 @@ public class UserService {
         User user = token.getUser();
         user.setEnabled(true);
         userRepository.save(user);
-        tokenRepository.deleteById(token.getTokenId());
+        authTokenRepository.deleteById(token.getTokenId());
     }
 
     public void resendToken(UsernameDto usernameDto) {
@@ -106,11 +102,11 @@ public class UserService {
         if (user.isEnabled()) {
             throw new UserNotAllowedException();
         }
-        sendToken(user);
+        sendAuthToken(user);
     }
 
-    private void sendToken(User user) {
-        AuthToken token = tokenService.generateToken(user);
+    private void sendAuthToken(User user) {
+        AuthToken token = tokenService.generateAuthToken(user);
         String email = user.getUsername();
         String text = "Your token is: " + token.getValue() + System.lineSeparator() + "It will expire in " +
                 +Constants.TOKEN_VALIDATION_MINUTES + " minutes.";
@@ -129,14 +125,47 @@ public class UserService {
         jwtSecretRepository.deleteById(subject);
     }
 
-    public boolean changePassword(PasswordChangeLoggedInDto passwordChangeLoggedInDto) {
+    public boolean changePassword(PasswordChangeDto passwordChangeDto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException());
-        if (passwordConfig.passwordEncoder().matches(passwordChangeLoggedInDto.getOldPassword(), user.getPassword())) {
-            user.setPassword(passwordConfig.passwordEncoder().encode(passwordChangeLoggedInDto.getNewPassword()));
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        if (passwordConfig.passwordEncoder().matches(passwordChangeDto.getOldPassword(), user.getPassword())) {
+            user.setPassword(passwordConfig.passwordEncoder().encode(passwordChangeDto.getNewPassword()));
             userRepository.save(user);
             return true;
         }
         return false;
     }
+
+    public void forgotPassword(ForgotPasswordFirstStepDto forgotPasswordFirstStepDto) {
+        User user = userRepository.findByUsername(forgotPasswordFirstStepDto.getUsername())
+                .orElseThrow(UserNotFoundException::new);
+        sendPasswordChangeToken(user);
+
+    }
+
+    private void sendPasswordChangeToken(User user) {
+        PasswordChangeToken token = tokenService.generatePasswordChangeToken(user);
+        String email = user.getUsername();
+        String text = "Your password change token is: " + token.getValue() + System.lineSeparator() +
+                "It will expire in " + Constants.TOKEN_VALIDATION_MINUTES + " minutes.";
+        String subject = "Change your password";
+        mailService.sendMail(email, subject, text);
+    }
+
+    @Transactional
+    public void newPassword(ForgotPasswordSecondStepDto forgotPasswordSecondStepDto) {
+        PasswordChangeToken token = passwordChangeTokenRepository.findByValue(forgotPasswordSecondStepDto.getToken())
+                .orElseThrow(() -> new InvalidTokenException("No such token was found."));
+        if (!token.getUser().getUsername().equals(forgotPasswordSecondStepDto.getUsername())) {
+            throw new InvalidTokenException("User doesn't match token.");
+        }
+        if (token.getValidUntil().isBefore(LocalDateTime.now())) {
+            throw new InvalidTokenException("Token Expired.");
+        }
+        User user = token.getUser();
+        user.setPassword(passwordConfig.passwordEncoder().encode(forgotPasswordSecondStepDto.getNewPassword()));
+        userRepository.save(user);
+        passwordChangeTokenRepository.delete(token);
+    }
+
 }
