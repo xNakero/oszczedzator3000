@@ -69,4 +69,13 @@ public class UserController {
         userService.logoutAll();
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PostMapping("change-password")
+    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeLoggedInDto passwordChangeLoggedInDto) {
+        if (userService.changePassword(passwordChangeLoggedInDto)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
 }
