@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import pl.pz.oszczedzator3000.service.JwtSecretService;
 import pl.pz.oszczedzator3000.service.UserDetailsServiceImpl;
 
 @Configuration
@@ -19,6 +20,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserDetailsServiceImpl userDetailsServiceImpl;
     private PasswordConfig passwordConfig;
+    private final JwtSecretService jwtSecretService;
 
     @Autowired
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, PasswordConfig passwordConfig, JwtSecretService jwtSecretService) {

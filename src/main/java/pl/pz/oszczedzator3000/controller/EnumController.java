@@ -17,7 +17,6 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class EnumController {
 
-
     @GetMapping("{name}")
     public ResponseEntity<List<String>> getEnums(@PathVariable String name) {
         List<String> enums = new ArrayList<>();

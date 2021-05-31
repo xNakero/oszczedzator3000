@@ -50,6 +50,6 @@ public class JwtService {
 
     public String generateNewToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return jwtTokenProvider.generateTokenExtendDuration(authentication);
+        return jwtTokenProvider.generateToken(authentication);
     }
 }

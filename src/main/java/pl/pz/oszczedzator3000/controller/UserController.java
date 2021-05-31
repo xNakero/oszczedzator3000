@@ -63,4 +63,10 @@ public class UserController {
         userService.resendToken(usernameDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PostMapping("logout-all")
+    public ResponseEntity<?> logout() {
+        userService.logoutAll();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
