@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.pz.oszczedzator3000.Constants;
 import pl.pz.oszczedzator3000.config.PasswordConfig;
 import pl.pz.oszczedzator3000.dto.user.AuthDto;
+import pl.pz.oszczedzator3000.dto.user.PasswordChangeLoggedInDto;
 import pl.pz.oszczedzator3000.dto.user.UsernameDto;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
 import pl.pz.oszczedzator3000.exceptions.registration.InvalidRegistrationDataException;
@@ -125,5 +126,16 @@ public class UserService {
     public void logoutAll() {
         String subject = SecurityContextHolder.getContext().getAuthentication().getName();
         jwtSecretRepository.deleteById(subject);
+    }
+
+    public boolean changePassword(PasswordChangeLoggedInDto passwordChangeLoggedInDto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException());
+        if (passwordConfig.passwordEncoder().matches(passwordChangeLoggedInDto.getOldPassword(), user.getPassword())) {
+            user.setPassword(passwordConfig.passwordEncoder().encode(passwordChangeLoggedInDto.getNewPassword()));
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
 }

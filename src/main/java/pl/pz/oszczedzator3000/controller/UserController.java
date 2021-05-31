@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.pz.oszczedzator3000.dto.exception.ExceptionDto;
 import pl.pz.oszczedzator3000.dto.jwt.JwtDto;
 import pl.pz.oszczedzator3000.dto.user.AuthDto;
+import pl.pz.oszczedzator3000.dto.user.PasswordChangeLoggedInDto;
 import pl.pz.oszczedzator3000.dto.user.UserDto;
 import pl.pz.oszczedzator3000.dto.user.UsernameDto;
 import pl.pz.oszczedzator3000.service.JwtService;
