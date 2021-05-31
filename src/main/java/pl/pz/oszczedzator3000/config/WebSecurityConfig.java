@@ -21,9 +21,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private PasswordConfig passwordConfig;
 
     @Autowired
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, PasswordConfig passwordConfig) {
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl, PasswordConfig passwordConfig, JwtSecretService jwtSecretService) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.passwordConfig = passwordConfig;
+        this.jwtSecretService = jwtSecretService;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/v1/users/**").hasRole("USER")
                 .and()
-                .addFilter(new JwtFilter(authenticationManager()));
+                .addFilter(new JwtFilter(authenticationManager(), jwtSecretService));
     }
 
     @Override

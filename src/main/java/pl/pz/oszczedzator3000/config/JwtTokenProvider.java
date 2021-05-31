@@ -1,12 +1,14 @@
 package pl.pz.oszczedzator3000.config;
 
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-import pl.pz.oszczedzator3000.model.User;
+import pl.pz.oszczedzator3000.model.JwtSecret;
+import pl.pz.oszczedzator3000.service.JwtSecretService;
+import pl.pz.oszczedzator3000.service.JwtService;
 
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -16,12 +18,15 @@ public class JwtTokenProvider {
 
     private final String SECRET = "Lj1xiAOz/D+E{E%";
     private final int EXPIRATION_AFTER = 1000 * 60 * 60 * 24;
+    private final JwtSecretService jwtSecretService;
 
-    public String generateTokenLogin(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-        return buildPartialJwt(authentication)
-                .claim("id", user.getUserId())
-                .compact();
+    @Autowired
+    public JwtTokenProvider(JwtSecretService jwtSecretService) {
+        this.jwtSecretService = jwtSecretService;
+    }
+
+    public String generateToken(Authentication authentication) {
+        return buildJwt(authentication);
     }
 
     public String generateTokenExtendDuration (Authentication authentication) {

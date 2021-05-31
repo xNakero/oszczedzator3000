@@ -26,6 +26,7 @@ public class JwtFilter extends BasicAuthenticationFilter {
 
     public JwtFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
+        this.jwtSecretService = jwtSecretService;
     }
 
     @Override
@@ -35,8 +36,9 @@ public class JwtFilter extends BasicAuthenticationFilter {
             UsernamePasswordAuthenticationToken authResult = getAuthenticationByToken(header);
             SecurityContextHolder.getContext().setAuthentication(authResult);
             chain.doFilter(request, response);
-        } catch (NullPointerException e) {
-            logger.warn("Jwt not found");
+        } catch (NullPointerException | JwtException e) {
+            logger.warn("JwtSecret not found");
+            response.setStatus(401);
         }
     }
 
@@ -55,7 +57,6 @@ public class JwtFilter extends BasicAuthenticationFilter {
                 .collect(Collectors.toSet());
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                 = new UsernamePasswordAuthenticationToken(username, null, authorities);
-        usernamePasswordAuthenticationToken.setDetails(id);
         return usernamePasswordAuthenticationToken;
     }
 }

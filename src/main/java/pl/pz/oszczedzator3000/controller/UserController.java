@@ -1,5 +1,6 @@
 package pl.pz.oszczedzator3000.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ import pl.pz.oszczedzator3000.dto.user.UserDto;
 import pl.pz.oszczedzator3000.dto.user.UsernameDto;
 import pl.pz.oszczedzator3000.service.JwtService;
 import pl.pz.oszczedzator3000.service.UserService;
+
+import java.util.Base64;
 
 @RestController
 @RequestMapping("api/v1")
