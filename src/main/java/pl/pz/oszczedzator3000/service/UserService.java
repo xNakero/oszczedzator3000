@@ -18,6 +18,7 @@ import pl.pz.oszczedzator3000.model.AuthToken;
 import pl.pz.oszczedzator3000.model.Role;
 import pl.pz.oszczedzator3000.model.User;
 import pl.pz.oszczedzator3000.model.enums.AppRole;
+import pl.pz.oszczedzator3000.repository.JwtSecretRepository;
 import pl.pz.oszczedzator3000.repository.RoleRepository;
 import pl.pz.oszczedzator3000.repository.TokenRepository;
 import pl.pz.oszczedzator3000.repository.UserRepository;
@@ -35,6 +36,7 @@ public class UserService {
     private final TokenService tokenService;
     private final MailService mailService;
     private final TokenRepository tokenRepository;
+    private final JwtSecretRepository jwtSecretRepository;
 
     @Autowired
     public UserService(UserRepository userRepository,
@@ -42,13 +44,14 @@ public class UserService {
                        PasswordConfig passwordConfig,
                        TokenService tokenService,
                        MailService mailService,
-                       TokenRepository tokenRepository) {
+                       TokenRepository tokenRepository, JwtSecretRepository jwtSecretRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordConfig = passwordConfig;
         this.tokenService = tokenService;
         this.mailService = mailService;
         this.tokenRepository = tokenRepository;
+        this.jwtSecretRepository = jwtSecretRepository;
     }
 
     @Transactional
@@ -117,5 +120,10 @@ public class UserService {
         return (userDto.getUsername().matches(Constants.USERNAME_REGEX) &&
                 userDto.getPassword().matches(Constants.PASSWORD_REGEX) &&
                 userDto.getPassword().length() >= 8 );
+    }
+
+    public void logoutAll() {
+        String subject = SecurityContextHolder.getContext().getAuthentication().getName();
+        jwtSecretRepository.deleteById(subject);
     }
 }
