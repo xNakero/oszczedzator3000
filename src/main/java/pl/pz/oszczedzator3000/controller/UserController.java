@@ -48,9 +48,9 @@ public class UserController {
     }
 
     @PostMapping("auth")
-    public ResponseEntity<?> confirmEmail(@RequestBody AuthDto authDto) {
-        userService.confirmEmail(authDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> confirmEmail(@RequestBody AuthorizationWithPasswordDto authorizationWithPasswordDto) {
+        userService.confirmEmail(new AuthDto(authorizationWithPasswordDto.getUsername(), authorizationWithPasswordDto.getToken()));
+        return new ResponseEntity<>(new JwtDto(jwtService.authenticate(new UserDto(authorizationWithPasswordDto.getUsername(), authorizationWithPasswordDto.getPassword()))),HttpStatus.OK);
     }
 
     @PostMapping("new-token")
@@ -80,8 +80,8 @@ public class UserController {
     }
 
     @PostMapping("forgot-password/new-password")
-    public ResponseEntity<?> newPassword(@RequestBody ForgotPasswordSecondStepDto forgotPasswordSecondStepDto) {
-        userService.newPassword(forgotPasswordSecondStepDto);
+    public ResponseEntity<?> newPassword(@RequestBody AuthorizationWithPasswordDto authorizationWithPasswordDto) {
+        userService.newPassword(authorizationWithPasswordDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

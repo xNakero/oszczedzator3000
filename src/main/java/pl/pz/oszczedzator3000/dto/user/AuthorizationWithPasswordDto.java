@@ -8,10 +8,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ForgotPasswordSecondStepDto {
+public class AuthorizationWithPasswordDto {
 
     private String username;
     private String token;
-    @JsonAlias("new_password")
-    private String newPassword;
+    @JsonAlias("password")
+    private String password;
 }

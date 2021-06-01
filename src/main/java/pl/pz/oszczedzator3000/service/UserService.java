@@ -157,17 +157,17 @@ public class UserService {
     }
 
     @Transactional
-    public void newPassword(ForgotPasswordSecondStepDto forgotPasswordSecondStepDto) {
-        PasswordChangeToken token = passwordChangeTokenRepository.findByValue(forgotPasswordSecondStepDto.getToken())
+    public void newPassword(AuthorizationWithPasswordDto authorizationWithPasswordDto) {
+        PasswordChangeToken token = passwordChangeTokenRepository.findByValue(authorizationWithPasswordDto.getToken())
                 .orElseThrow(() -> new InvalidTokenException("No such token was found."));
-        if (!token.getUser().getUsername().equals(forgotPasswordSecondStepDto.getUsername())) {
+        if (!token.getUser().getUsername().equals(authorizationWithPasswordDto.getUsername())) {
             throw new InvalidTokenException("User doesn't match token.");
         }
         if (token.getValidUntil().isBefore(LocalDateTime.now())) {
             throw new InvalidTokenException("Token Expired.");
         }
         User user = token.getUser();
-        user.setPassword(passwordConfig.passwordEncoder().encode(forgotPasswordSecondStepDto.getNewPassword()));
+        user.setPassword(passwordConfig.passwordEncoder().encode(authorizationWithPasswordDto.getPassword()));
         userRepository.save(user);
         passwordChangeTokenRepository.delete(token);
     }
