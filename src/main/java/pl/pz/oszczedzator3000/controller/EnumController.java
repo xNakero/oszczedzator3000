@@ -27,7 +27,7 @@ public class EnumController {
             case "profession":
                 Arrays.asList(Profession.values()).forEach(category -> enums.add(category.name()));
                 break;
-            case "relationshipStatus":
+            case "relationship_status":
                 Arrays.asList(RelationshipStatus.values()).forEach(category -> enums.add(category.name()));
                 break;
             case "sex":
