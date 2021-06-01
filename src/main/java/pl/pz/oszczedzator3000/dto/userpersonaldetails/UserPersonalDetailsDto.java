@@ -33,6 +33,6 @@ public class UserPersonalDetailsDto {
     }
 
     public boolean hasEmptyOrInvalidAttributes() {
-        return salary <= 0 || profession == null || age < 18 || sex == null || relationshipStatus == null || kids <= 0;
+        return salary <= 0 || profession == null || age < 18 || sex == null || relationshipStatus == null || kids < 0;
     }
 }
