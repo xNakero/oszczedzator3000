@@ -119,6 +119,44 @@ Nothing in this body can be null.
 * ``username`` - username of the user, it has to be an email address
 * ``token_value`` - token from email
 
+#### Resend token
+```
+{
+   "username": string;
+}
+```
+* ``username`` - username of the user, it has to be an email address
+
+#### Password change
+```
+{
+   "old_password": string,
+   "new_password": string;
+}
+```
+* ``old_password`` - old password of the user
+* ``new_password`` - new password of the user
+
+#### Forgot password mail
+```
+{
+   "username": string;
+}
+```
+* ``username`` - username of the user, it has to be an email address
+
+#### Set new password
+```
+{
+   "username": string,
+   "token": string,
+   "new_password": string;
+}
+```
+* ``username`` - username of the user, it has to be an email address
+* ``token`` - token from email
+* ``new_password`` - new password of the user
+
 ### Methods
 #### Register - POST method
 In order to register in the oszczedzator3000 API you have to go to the endpoint
@@ -134,6 +172,12 @@ In order to enable the account you have to send a request to this endpoint.
 ```
 It accepts [registration-confirmation](#registration-confirmation) as request body. 
 
+#### Resend token - POST method
+In order to have new token to enable the account you have to send a request to this endpoint.
+```
+/api/v1/new-token
+```
+It accepts [resend-token](#resend-token) as request body. 
 
 #### Login - POST method
 To obtain JWT token user has to login to API. To login you have to go to the endpoint
@@ -143,12 +187,39 @@ To obtain JWT token user has to login to API. To login you have to go to the end
 This endpoint requires [User](#user) as request body. If login was successful it returns [Jwt](#jwt) as a response.
 
 #### Extend token duration - POST method
-The token is not infinite. At some point in order to not logout user from a website that uses API the token has to be extended. It can be done by sending a request to the endpoint
+The token is not infinite. At some point in order to not logout user from a website that uses API the token has to be extended. It can be done by sending a request to the endpoint.
 ```
 /api/v1/token-extension
 ```
 This endpoint returns [Jwt](#jwt) as the response only when the authorization token is valid or not expired.
 
+#### Logout - POST method
+To logout of all devices you have to go to the endpoint
+```
+/api/v1/logout-all
+```
+If logout was successful it returns appropriate response.
+
+#### Password change - POST method
+In order to change password when user is logged in you have to send a request to this endpoint. 
+```
+/api/v1/change-password
+```
+It accepts [password change](#password-change) as request body.
+
+#### Forgot password - POST method
+In order to change password when user is logged out you have to send a request to this endpoint. 
+```
+/api/v1/forgot-password
+```
+It accepts [forgot password](#forgot-password-mail) as request body.
+
+#### Set new password - POST method
+In order to set new password when user is logged out you have to send a request to this endpoint. 
+```
+/api/v1/forgot-password/new-password
+```
+It accepts [new password](#set-new-password) as request body.
 
 ## Expense
 Expenses are accessible only for the users that owns them. Users can get, post, patch or delete their expenses. User can get all of his/her expenses or filter them.
