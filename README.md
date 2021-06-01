@@ -7,7 +7,7 @@
 * [Technologies used](#technologies-used)
 * [How to run it?](#how-to-run-it)
 * [How to use this API?](#how-to-use-this-api)
-    * [Registration and login](#registration-and-login)
+    * [Account Management](#account-management)
     * [Expense](#expense)
     * [Goal](#goal)
     * [User Personal Details](#user-personal-details)
@@ -68,7 +68,8 @@ mvn spring-boot:run
 * Application requires JWT token in order to access resources
 
 
-## Registration and login
+## Account Management
+
 ### Data Transfer Objects
 #### User
 ```
@@ -88,13 +89,51 @@ mvn spring-boot:run
 ```
 * ``token`` - JWT token, valid for 24 hours
 
+#### Registration 
+```
+{
+    "username": string,
+    "password": string,
+    "user_personal_details": {
+        "salary": double,
+        "profession": profession,
+        "age": int,
+        "sex": sex, 
+        "relationship_status": relationship_status,
+        "kids": int
+    }
+}
+```
+Nothing in this body can be null.
+* ``username`` - username of the user, it has to be an email address
+* ``password`` - password of the user
+* ``user_personal_details`` - can be found at (#user-personal-details)
+
+#### Registration Confirmation
+```
+{
+   "username": string,
+   "token_value": string;
+}
+```
+* ``username`` - username of the user, it has to be an email address
+* ``token_value`` - token from email
+
 ### Methods
 #### Register - POST method
 In order to register in the oszczedzator3000 API you have to go to the endpoint
 ```
 /api/v1/register
 ```
-This endpoint requires [User](#user) as request body. If the user was successfully register the application returns 201 HTTP status code, otherwise it returns 409 code. 
+This endpoint requires [registration](#registration) as request body. If the user was successfully register the application returns 201 HTTP status code, otherwise it returns 409 code or 400. It also sends a 6-digit code at destined email. After registering check out [registration confirmation](#registration-confirmation---post-method)
+
+#### Registration confirmation - POST method
+In order to enable the account you have to send a request to this endpoint. 
+```
+/api/v1/auth
+```
+It accepts [registration-confirmation](#registration-confirmation) as request body. 
+
 
 #### Login - POST method
 To obtain JWT token user has to login to API. To login you have to go to the endpoint
@@ -112,7 +151,7 @@ This endpoint returns [Jwt](#jwt) as the response only when the authorization to
 
 
 ## Expense
-Expenses are accessible only for the users that owns them. Users can get, post, put or delete their expenses. User can get all of his/her expenses or filter them.
+Expenses are accessible only for the users that owns them. Users can get, post, patch or delete their expenses. User can get all of his/her expenses or filter them.
 
 ### Data Transfer Objects
 #### Request with filters
@@ -187,7 +226,7 @@ This request has the same optional parameters as unfiltered one, however it acce
 This request accepts [Request with expense data](#request-with-expense-data) as request body. Expense can be posted only if every 
 property is filled. 
 
-#### PUT expense
+#### PATCH expense
 ```
 /api/v1/expenses/{expense_id}
 ```
@@ -202,7 +241,7 @@ This request accepts [Request with expense data](#request-with-expense-data) as 
 User can delete only his/her expenses. 
 
 ## Goal
-Goals are accessible only for the users that owns them. Users can get, post, put or delete their goals. User can get all of his/her goals or filter them.
+Goals are accessible only for the users that owns them. Users can get, post, patch or delete their goals. User can get all of his/her goals or filter them.
 
 ### Data Transfer Objects
 #### Goal request with filters
@@ -267,7 +306,7 @@ This request has the same optional parameters as unfiltered one, however it acce
 This request accepts [Request with goal data](#request-with-goal-data) as request body. Goal can be posted only if every 
 property is filled. 
 
-#### PUT goal
+#### PATCH goal
 ```
 /api/v1/goals/{goal_id}
 ```
@@ -305,7 +344,7 @@ User can delete only his/her goals.
 
 All responses return [User Personal Details Request/Response](#user-personal-details-requestresponse).
 
-There are availible 3 HTTP methods - GET, POST, PUT. User can only delete his personal details when he deletes his/her account. User can have access only to his/her personal details. 
+There are availible 3 HTTP methods - GET, POST, PATCH. User can only delete his personal details when he deletes his/her account. User can have access only to his/her personal details. 
 
 All methods are available at the endpoint
 ```
@@ -315,10 +354,7 @@ All methods are available at the endpoint
 #### GET user personal details
 Simply returns personal details of a user.
 
-#### POST user personal details
-User personal details can be posted only if request body doesn't contain empty values.
-
-#### PUT user personal details
+#### PATCH user personal details
 Fill only properties that you want to have updated.
 
 ## Goal Analyser
