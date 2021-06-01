@@ -28,6 +28,15 @@ public class UserPersonalDetailsController {
         return new ResponseEntity<>(userPersonalDetailsService.getUserPersonalDetails(), HttpStatus.OK);
     }
 
+    @PostMapping("details")
+    public ResponseEntity<UserPersonalDetailsDto> postUserPersonalDetails(@RequestBody UserPersonalDetailsDto userPersonalDetailsDto) {
+        Optional<UserPersonalDetailsDto> userPersonalDetailsDtoOptional =
+                userPersonalDetailsService.postUserPersonalDetails(userPersonalDetailsDto);
+        return userPersonalDetailsDtoOptional
+                .map(personalDetailsDto -> new ResponseEntity<>(personalDetailsDto, HttpStatus.CREATED))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+    }
+
     @PatchMapping("details")
     public ResponseEntity<UserPersonalDetailsDto> updateUserPersonalDetails(@RequestBody UserPersonalDetailsDto userPersonalDetailsDto) {
         return new ResponseEntity<>(

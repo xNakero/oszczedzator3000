@@ -38,6 +38,19 @@ public class UserPersonalDetailsService {
         return userPersonalDetailsMapper.mapToUserPersonalDetailsDto(userPersonalDetails);
     }
 
+    public Optional<UserPersonalDetailsDto> postUserPersonalDetails(UserPersonalDetailsDto userPersonalDetailsDto) {
+        User user = getUserPrincipal();
+        if (userPersonalDetailsDto.hasInvalidData()) {
+            return Optional.empty();
+        }
+        UserPersonalDetails userPersonalDetails = userPersonalDetailsMapper
+                .mapToUserPersonalDetails(userPersonalDetailsDto);
+        userPersonalDetails.setUserId(user.getUserId());
+        userPersonalDetails.setUser(user);
+        userPersonalDetailsRepository.save(userPersonalDetails);
+        return Optional.of(userPersonalDetailsDto);
+    }
+
     @Transactional
     public UserPersonalDetailsDto updateUserPersonalDetails(UserPersonalDetailsDto userPersonalDetailsDto) {
         User user = getUserPrincipal();
