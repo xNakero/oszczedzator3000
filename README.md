@@ -184,14 +184,14 @@ To obtain JWT token user has to login to API. To login you have to go to the end
 ```
 /api/v1/login
 ```
-This endpoint requires [User](#user) as request body. If login was successful it returns [Jwt](#jwt) as a response.
+This endpoint requires [User](#user) as request body. If login was successful it returns [Jwt](#jwtSecret) as a response.
 
 #### Extend token duration - POST method
 The token is not infinite. At some point in order to not logout user from a website that uses API the token has to be extended. It can be done by sending a request to the endpoint.
 ```
 /api/v1/token-extension
 ```
-This endpoint returns [Jwt](#jwt) as the response only when the authorization token is valid or not expired.
+This endpoint returns [Jwt](#jwtSecret) as the response only when the authorization token is valid or not expired.
 
 #### Logout - POST method
 To logout of all devices you have to go to the endpoint
