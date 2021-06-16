@@ -461,7 +461,7 @@ Goal Analyser analyses whether user can afford a goal based on his expenses in c
 * ``can_achieve_before_end_date`` - if user daily saves more or equal to the necessary amount of money than it's true, else it's false
 
 ### Methods 
-Goal Analyser has only one HTTP method - GET. It can be reached at the endpoint
+Goal Analyser has only one HTTP method - POST. It can be reached at the endpoint
 ```
 /api/v1/goals/{goal_id}/analyser
 ```
